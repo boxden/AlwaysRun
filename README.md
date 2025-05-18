@@ -44,5 +44,5 @@ Contributions are welcome! If you'd like to add new features, fix bugs, or impro
 This addon is provided as-is. Feel free to modify and distribute it, but please give credit to the original author.
 
 ## Credits
-- **Author**: [Web_Artur](https://steamcommunity.com/profiles/76561198115550963) ([steamID64: 76561198115550963])
+- **Author**: [Web_Artur](https://steamcommunity.com/profiles/76561198115550963)
 - **Last Updated**: 12 May 2025
