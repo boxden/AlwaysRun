@@ -25,28 +25,10 @@ The **Always Run** addon for Garry's Mod allows players to enable or disable a f
 - **SHIFT**: Temporarily walk while Always Run is enabled.
 
 ## Localization
-The addon supports the following languages:
-- English
-- Russian
-- French
-- German
-- Spanish
-- Chinese (Simplified and Traditional)
-- Korean
-- Japanese
-- Polish
-- Portuguese
-- Turkish
-- Danish
-- Dutch
-- Norwegian
-- Finnish
-- Swedish
-- Czech
-- Hungarian
-- Italian
-- Ukrainian
-- Thai
+
+Supports 20+ languages, including:
+
+English, Russian, French, German, Spanish, Chinese, Korean, Japanese, Polish, Portuguese, Turkish, Danish, Dutch, Norwegian, Finnish, Swedish, Czech, Hungarian, Italian, Ukrainian, Thai.
 
 If your language is not supported or you notice an issue with a translation, feel free to contribute!
 
@@ -62,5 +44,5 @@ Contributions are welcome! If you'd like to add new features, fix bugs, or impro
 This addon is provided as-is. Feel free to modify and distribute it, but please give credit to the original author.
 
 ## Credits
-- **Author**: Web_Artur ([steamID64: 76561198115550963])
+- **Author**: [Web_Artur](https://steamcommunity.com/profiles/76561198115550963) ([steamID64: 76561198115550963])
 - **Last Updated**: 12 May 2025
