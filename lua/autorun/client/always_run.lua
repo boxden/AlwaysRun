@@ -11,7 +11,7 @@ local isCapturingKey = false
 local KEY_MIN, KEY_MAX = 1, 159
 local keyButton
 
-local function GetForbiddenKeys(force)
+local function GetForbiddenKeys()
     local forbidden = {
         [KEY_ESCAPE] = true, [KEY_F1] = true, [KEY_F2] = true, [KEY_F3] = true, [KEY_F4] = true,
         [KEY_F5] = true, [KEY_F6] = true, [KEY_F7] = true, [KEY_F8] = true, [KEY_F9] = true,
@@ -125,7 +125,6 @@ local function RebuildPanel(panel)
     customKeyCheckbox:SetValue(alwaysRunCustomKeyEnabled)
     customKeyCheckbox:DockMargin(0, 8, 0, 0)
 
-    -- Key selection button
     if keyButton then keyButton:Remove() end
     keyButton = vgui.Create("DButton")
     keyButton:SetText("  " .. GetLocalizedPhrase("always_run_key") .. input.GetKeyName(TOGGLE_KEY))
@@ -181,25 +180,23 @@ local function RebuildPanel(panel)
         surface.DrawTexturedRect(6, h/2-8, 16, 16)
     end
     panel:AddItem(githubButton)
-
-    -- Synchronize the main checkbox with alwaysRunToggled
-    if timer.Exists("AlwaysRunSyncCheckbox") then timer.Remove("AlwaysRunSyncCheckbox") end
-
-    timer.Create("AlwaysRunSyncCheckbox", 0.1, 0, function()
-        if _G.AlwaysRunMainCheckbox and _G.AlwaysRunMainCheckbox:IsValid() then
-            if _G.AlwaysRunMainCheckbox:GetChecked() ~= alwaysRunToggled then
-                _G.AlwaysRunMainCheckbox:SetChecked(alwaysRunToggled)
-            end
-        end
-    end)
 end
 
 hook.Add("PopulateToolMenu", "AlwaysRunSettings", function()
     LoadAlwaysRunSettings()
     spawnmenu.AddToolMenuOption("Utilities", GetLocalizedPhrase("utilities_server"), "AlwaysRunSettings", GetLocalizedPhrase("always_run_menu"), "", "", function(panel)
-        _G.AlwaysRunSettingsPanel = panel
         RebuildPanel(panel)
     end)
+end)
+
+if timer.Exists("AlwaysRunSyncCheckbox") then timer.Remove("AlwaysRunSyncCheckbox") end
+
+timer.Create("AlwaysRunSyncCheckbox", 0.1, 0, function()
+    if _G.AlwaysRunMainCheckbox and _G.AlwaysRunMainCheckbox:IsValid() then
+        if _G.AlwaysRunMainCheckbox:GetChecked() ~= alwaysRunToggled then
+            _G.AlwaysRunMainCheckbox:SetChecked(alwaysRunToggled)
+        end
+    end
 end)
 
 concommand.Add("always_run_set_key", function()
