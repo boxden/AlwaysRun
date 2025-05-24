@@ -116,6 +116,7 @@ local function RebuildPanel(panel)
         RunConsoleCommand("always_run_enabled", value and "1" or "0")
         SaveAlwaysRunSettings()
     end
+    _G.AlwaysRunMainCheckbox = checkbox
 
     panel:Help(GetLocalizedPhrase("always_run_description"))
     panel:Help(GetLocalizedPhrase("always_run_capslock_hint"))
@@ -124,53 +125,33 @@ local function RebuildPanel(panel)
     customKeyCheckbox:SetValue(alwaysRunCustomKeyEnabled)
     customKeyCheckbox:DockMargin(0, 8, 0, 0)
 
-    -- Add keyButton right after customKeyCheckbox if enabled
-    if alwaysRunCustomKeyEnabled then
-        if keyButton then keyButton:Remove() end
-        keyButton = vgui.Create("DButton")
-        keyButton:SetText("  " .. GetLocalizedPhrase("always_run_key") .. input.GetKeyName(TOGGLE_KEY))
-        keyButton:SetTall(32)
-        keyButton:SetTextColor(Color(255,255,255))
-        keyButton:Dock(TOP)
-        keyButton:DockMargin(0, 4, 0, 8)
-        keyButton.Paint = function(self, w, h)
-            draw.RoundedBox(6, 0, 0, w, h, Color(36, 41, 46))
-            if self:IsHovered() then
-                draw.RoundedBox(6, 0, 0, w, h, Color(56, 61, 66, 180))
-            end
+    -- Key selection button
+    if keyButton then keyButton:Remove() end
+    keyButton = vgui.Create("DButton")
+    keyButton:SetText("  " .. GetLocalizedPhrase("always_run_key") .. input.GetKeyName(TOGGLE_KEY))
+    keyButton:SetTall(32)
+    keyButton:SetTextColor(Color(255,255,255))
+    keyButton:Dock(TOP)
+    keyButton:DockMargin(0, 4, 0, 8)
+    keyButton.Paint = function(self, w, h)
+        draw.RoundedBox(6, 0, 0, w, h, Color(36, 41, 46))
+        if self:IsHovered() then
+            draw.RoundedBox(6, 0, 0, w, h, Color(56, 61, 66, 180))
         end
-        keyButton.DoClick = function() RunConsoleCommand("always_run_set_key") end
-        keyButton:SetToolTip(GetLocalizedPhrase("always_run_select_key_hint"))
-        keyButton.PaintOver = function(self, w, h)
-            surface.SetDrawColor(255,255,255,255)
-            surface.SetMaterial(Material("icon16/keyboard.png"))
-            surface.DrawTexturedRect(6, h/2-8, 16, 16)
-        end
-        _G.AlwaysRunKeyButton = keyButton
-        panel:AddItem(keyButton)
-    else
-        if keyButton then keyButton:Remove() keyButton = nil _G.AlwaysRunKeyButton = nil end
     end
+    keyButton.DoClick = function() RunConsoleCommand("always_run_set_key") end
+    keyButton:SetToolTip(GetLocalizedPhrase("always_run_select_key_hint"))
+    keyButton.PaintOver = function(self, w, h)
+        surface.SetDrawColor(255,255,255,255)
+        surface.SetMaterial(Material("icon16/keyboard.png"))
+        surface.DrawTexturedRect(6, h/2-8, 16, 16)
+    end
+    _G.AlwaysRunKeyButton = keyButton
+    panel:AddItem(keyButton)
+    keyButton:SetVisible(alwaysRunCustomKeyEnabled)
 
     customKeyCheckbox.OnChange = function(_, value)
-        if alwaysRunCustomKeyEnabled == value then return end
         alwaysRunCustomKeyEnabled = value
-        if not value then
-            local savedKey = DEFAULT_TOGGLE_KEY
-            if file.Exists(saveFilePath, "DATA") then
-                local _, key = string.match(file.Read(saveFilePath, "DATA") or "", "^(%d):(%d+):?(%d?):?(%d?)$")
-                savedKey = tonumber(key) or DEFAULT_TOGGLE_KEY
-            end
-            TOGGLE_KEY = savedKey
-            if isCapturingKey then
-                isCapturingKey = false
-                hook.Remove("Think", "AlwaysRunKeyCapture")
-                if _G.AlwaysRunKeyButton and _G.AlwaysRunKeyButton.SetText then
-                    _G.AlwaysRunKeyButton:SetText(GetLocalizedPhrase("always_run_key") .. input.GetKeyName(TOGGLE_KEY))
-                end
-                chat.AddText(Color(255,100,100), GetLocalizedPhrase("always_run_key_cancelled"))
-            end
-        end
         SaveAlwaysRunSettings()
         RebuildPanel(panel)
     end
@@ -200,11 +181,23 @@ local function RebuildPanel(panel)
         surface.DrawTexturedRect(6, h/2-8, 16, 16)
     end
     panel:AddItem(githubButton)
+
+    -- Synchronize the main checkbox with alwaysRunToggled
+    if timer.Exists("AlwaysRunSyncCheckbox") then timer.Remove("AlwaysRunSyncCheckbox") end
+
+    timer.Create("AlwaysRunSyncCheckbox", 0.1, 0, function()
+        if _G.AlwaysRunMainCheckbox and _G.AlwaysRunMainCheckbox:IsValid() then
+            if _G.AlwaysRunMainCheckbox:GetChecked() ~= alwaysRunToggled then
+                _G.AlwaysRunMainCheckbox:SetChecked(alwaysRunToggled)
+            end
+        end
+    end)
 end
 
 hook.Add("PopulateToolMenu", "AlwaysRunSettings", function()
     LoadAlwaysRunSettings()
     spawnmenu.AddToolMenuOption("Utilities", GetLocalizedPhrase("utilities_server"), "AlwaysRunSettings", GetLocalizedPhrase("always_run_menu"), "", "", function(panel)
+        _G.AlwaysRunSettingsPanel = panel
         RebuildPanel(panel)
     end)
 end)
