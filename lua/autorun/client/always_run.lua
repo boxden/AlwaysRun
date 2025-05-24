@@ -107,50 +107,26 @@ hook.Add("CreateMove", "AlwaysRun", function(cmd)
     end
 end)
 
-hook.Add("PopulateToolMenu", "AlwaysRunSettings", function()
-    LoadAlwaysRunSettings()
-    spawnmenu.AddToolMenuOption("Utilities", GetLocalizedPhrase("utilities_server"), "AlwaysRunSettings", GetLocalizedPhrase("always_run_menu"), "", "", function(panel)
-        panel:ClearControls()
-        local checkbox = panel:CheckBox(GetLocalizedPhrase("always_run_enabled"))
-        checkbox:SetValue(alwaysRunToggled)
-        checkbox.OnChange = function(_, value)
-            alwaysRunToggled = value
-            RunConsoleCommand("always_run_enabled", value and "1" or "0")
-            SaveAlwaysRunSettings()
-        end
+local function RebuildPanel(panel)
+    panel:ClearControls()
+    local checkbox = panel:CheckBox(GetLocalizedPhrase("always_run_enabled"))
+    checkbox:SetValue(alwaysRunToggled)
+    checkbox.OnChange = function(_, value)
+        alwaysRunToggled = value
+        RunConsoleCommand("always_run_enabled", value and "1" or "0")
+        SaveAlwaysRunSettings()
+    end
 
-        panel:Help(GetLocalizedPhrase("always_run_description"))
-        panel:Help(GetLocalizedPhrase("always_run_capslock_hint"))
+    panel:Help(GetLocalizedPhrase("always_run_description"))
+    panel:Help(GetLocalizedPhrase("always_run_capslock_hint"))
 
-        local customKeyCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_custom_key_enable"))
-        customKeyCheckbox:SetValue(alwaysRunCustomKeyEnabled)
-        customKeyCheckbox:DockMargin(0, 8, 0, 0)
+    local customKeyCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_custom_key_enable"))
+    customKeyCheckbox:SetValue(alwaysRunCustomKeyEnabled)
+    customKeyCheckbox:DockMargin(0, 8, 0, 0)
 
-        local lastCustomKeyEnabled = alwaysRunCustomKeyEnabled
-        customKeyCheckbox.OnChange = function(_, value)
-            if value == lastCustomKeyEnabled then return end
-            lastCustomKeyEnabled = value
-            alwaysRunCustomKeyEnabled = value
-            if keyButton then keyButton:SetVisible(value) end
-            if not value then
-                local savedKey = DEFAULT_TOGGLE_KEY
-                if file.Exists(saveFilePath, "DATA") then
-                    local _, key = string.match(file.Read(saveFilePath, "DATA") or "", "^(%d):(%d+):?(%d?):?(%d?)$")
-                    savedKey = tonumber(key) or DEFAULT_TOGGLE_KEY
-                end
-                TOGGLE_KEY = savedKey
-                if isCapturingKey then
-                    isCapturingKey = false
-                    hook.Remove("Think", "AlwaysRunKeyCapture")
-                    if _G.AlwaysRunKeyButton and _G.AlwaysRunKeyButton.SetText then
-                        _G.AlwaysRunKeyButton:SetText(GetLocalizedPhrase("always_run_key") .. input.GetKeyName(TOGGLE_KEY))
-                    end
-                    chat.AddText(Color(255,100,100), GetLocalizedPhrase("always_run_key_cancelled"))
-                end
-            end
-            SaveAlwaysRunSettings()
-        end
-
+    -- Add keyButton right after customKeyCheckbox if enabled
+    if alwaysRunCustomKeyEnabled then
+        if keyButton then keyButton:Remove() end
         keyButton = vgui.Create("DButton")
         keyButton:SetText("  " .. GetLocalizedPhrase("always_run_key") .. input.GetKeyName(TOGGLE_KEY))
         keyButton:SetTall(32)
@@ -172,33 +148,64 @@ hook.Add("PopulateToolMenu", "AlwaysRunSettings", function()
         end
         _G.AlwaysRunKeyButton = keyButton
         panel:AddItem(keyButton)
-        keyButton:SetVisible(alwaysRunCustomKeyEnabled)
+    else
+        if keyButton then keyButton:Remove() keyButton = nil _G.AlwaysRunKeyButton = nil end
+    end
 
-        local muteCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_mute_sound"))
-        muteCheckbox:SetValue(alwaysRunMuteSound)
-        muteCheckbox.OnChange = function(_, value)
-            alwaysRunMuteSound = value
-            SaveAlwaysRunSettings()
-        end
-
-        local githubButton = vgui.Create("DButton")
-        githubButton:SetText("  " .. GetLocalizedPhrase("always_run_github"))
-        githubButton:SetTall(32)
-        githubButton:SetTextColor(Color(255,255,255))
-        githubButton:Dock(TOP)
-        githubButton.Paint = function(self, w, h)
-            draw.RoundedBox(6, 0, 0, w, h, Color(36, 41, 46))
-            if self:IsHovered() then
-                draw.RoundedBox(6, 0, 0, w, h, Color(56, 61, 66, 180))
+    customKeyCheckbox.OnChange = function(_, value)
+        if alwaysRunCustomKeyEnabled == value then return end
+        alwaysRunCustomKeyEnabled = value
+        if not value then
+            local savedKey = DEFAULT_TOGGLE_KEY
+            if file.Exists(saveFilePath, "DATA") then
+                local _, key = string.match(file.Read(saveFilePath, "DATA") or "", "^(%d):(%d+):?(%d?):?(%d?)$")
+                savedKey = tonumber(key) or DEFAULT_TOGGLE_KEY
+            end
+            TOGGLE_KEY = savedKey
+            if isCapturingKey then
+                isCapturingKey = false
+                hook.Remove("Think", "AlwaysRunKeyCapture")
+                if _G.AlwaysRunKeyButton and _G.AlwaysRunKeyButton.SetText then
+                    _G.AlwaysRunKeyButton:SetText(GetLocalizedPhrase("always_run_key") .. input.GetKeyName(TOGGLE_KEY))
+                end
+                chat.AddText(Color(255,100,100), GetLocalizedPhrase("always_run_key_cancelled"))
             end
         end
-        githubButton.DoClick = function() gui.OpenURL("https://github.com/boxden/AlwaysRun") end
-        githubButton.PaintOver = function(self, w, h)
-            surface.SetDrawColor(255,255,255,255)
-            surface.SetMaterial(Material("icon32/github.png"))
-            surface.DrawTexturedRect(6, h/2-8, 16, 16)
+        SaveAlwaysRunSettings()
+        RebuildPanel(panel)
+    end
+
+    local muteCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_mute_sound"))
+    muteCheckbox:SetValue(alwaysRunMuteSound)
+    muteCheckbox.OnChange = function(_, value)
+        alwaysRunMuteSound = value
+        SaveAlwaysRunSettings()
+    end
+
+    local githubButton = vgui.Create("DButton")
+    githubButton:SetText("  " .. GetLocalizedPhrase("always_run_github"))
+    githubButton:SetTall(32)
+    githubButton:SetTextColor(Color(255,255,255))
+    githubButton:Dock(TOP)
+    githubButton.Paint = function(self, w, h)
+        draw.RoundedBox(6, 0, 0, w, h, Color(36, 41, 46))
+        if self:IsHovered() then
+            draw.RoundedBox(6, 0, 0, w, h, Color(56, 61, 66, 180))
         end
-        panel:AddItem(githubButton)
+    end
+    githubButton.DoClick = function() gui.OpenURL("https://github.com/boxden/AlwaysRun") end
+    githubButton.PaintOver = function(self, w, h)
+        surface.SetDrawColor(255,255,255,255)
+        surface.SetMaterial(Material("icon32/github.png"))
+        surface.DrawTexturedRect(6, h/2-8, 16, 16)
+    end
+    panel:AddItem(githubButton)
+end
+
+hook.Add("PopulateToolMenu", "AlwaysRunSettings", function()
+    LoadAlwaysRunSettings()
+    spawnmenu.AddToolMenuOption("Utilities", GetLocalizedPhrase("utilities_server"), "AlwaysRunSettings", GetLocalizedPhrase("always_run_menu"), "", "", function(panel)
+        RebuildPanel(panel)
     end)
 end)
 
