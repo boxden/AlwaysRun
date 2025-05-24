@@ -8,8 +8,10 @@ local lastToggleKeyState = false
 local alwaysRunMuteSound = false
 local alwaysRunCustomKeyEnabled = false
 local isCapturingKey = false
+local KEY_MIN, KEY_MAX = 1, 159
+local keyButton
 
-local function GetForbiddenKeys()
+local function GetForbiddenKeys(force)
     local forbidden = {
         [KEY_ESCAPE] = true, [KEY_F1] = true, [KEY_F2] = true, [KEY_F3] = true, [KEY_F4] = true,
         [KEY_F5] = true, [KEY_F6] = true, [KEY_F7] = true, [KEY_F8] = true, [KEY_F9] = true,
@@ -51,8 +53,6 @@ local function GetForbiddenKeys()
     return forbidden
 end
 
-local forbidden = GetForbiddenKeys()
-
 local function GetLocalizedPhrase(key)
     local lang = GetConVar("gmod_language"):GetString()
     return (localization[lang] and localization[lang][key]) or localization["en"][key]
@@ -75,7 +75,7 @@ local function LoadAlwaysRunSettings()
         alwaysRunMuteSound = (mute == "1")
         alwaysRunCustomKeyEnabled = (custom == "1")
     else
-        alwaysRunToggled, TOGGLE_KEY, alwaysRunMuteSound, alwaysRunCustomKeyEnabled = true, DEFAULT_TOGGLE_KEY, false, false
+        alwaysRunToggled, TOGGLE_KEY, alwaysRunMuteSound, alwaysRunCustomKeyEnabled = true, DEFAULT_TOGGLE_KEY, true, false
         SaveAlwaysRunSettings()
     end
     RunConsoleCommand("always_run_enabled", alwaysRunToggled and "1" or "0")
@@ -108,9 +108,10 @@ hook.Add("CreateMove", "AlwaysRun", function(cmd)
 end)
 
 hook.Add("PopulateToolMenu", "AlwaysRunSettings", function()
+    LoadAlwaysRunSettings()
     spawnmenu.AddToolMenuOption("Utilities", GetLocalizedPhrase("utilities_server"), "AlwaysRunSettings", GetLocalizedPhrase("always_run_menu"), "", "", function(panel)
         panel:ClearControls()
-        local checkbox = panel:CheckBox(GetLocalizedPhrase("always_run_enabled"), "always_run_enabled")
+        local checkbox = panel:CheckBox(GetLocalizedPhrase("always_run_enabled"))
         checkbox:SetValue(alwaysRunToggled)
         checkbox.OnChange = function(_, value)
             alwaysRunToggled = value
@@ -121,11 +122,36 @@ hook.Add("PopulateToolMenu", "AlwaysRunSettings", function()
         panel:Help(GetLocalizedPhrase("always_run_description"))
         panel:Help(GetLocalizedPhrase("always_run_capslock_hint"))
 
-        local customKeyCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_custom_key_enable"), "always_run_custom_key_enable")
+        local customKeyCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_custom_key_enable"))
         customKeyCheckbox:SetValue(alwaysRunCustomKeyEnabled)
         customKeyCheckbox:DockMargin(0, 8, 0, 0)
 
-        local keyButton = vgui.Create("DButton")
+        local lastCustomKeyEnabled = alwaysRunCustomKeyEnabled
+        customKeyCheckbox.OnChange = function(_, value)
+            if value == lastCustomKeyEnabled then return end
+            lastCustomKeyEnabled = value
+            alwaysRunCustomKeyEnabled = value
+            if keyButton then keyButton:SetVisible(value) end
+            if not value then
+                local savedKey = DEFAULT_TOGGLE_KEY
+                if file.Exists(saveFilePath, "DATA") then
+                    local _, key = string.match(file.Read(saveFilePath, "DATA") or "", "^(%d):(%d+):?(%d?):?(%d?)$")
+                    savedKey = tonumber(key) or DEFAULT_TOGGLE_KEY
+                end
+                TOGGLE_KEY = savedKey
+                if isCapturingKey then
+                    isCapturingKey = false
+                    hook.Remove("Think", "AlwaysRunKeyCapture")
+                    if _G.AlwaysRunKeyButton and _G.AlwaysRunKeyButton.SetText then
+                        _G.AlwaysRunKeyButton:SetText(GetLocalizedPhrase("always_run_key") .. input.GetKeyName(TOGGLE_KEY))
+                    end
+                    chat.AddText(Color(255,100,100), GetLocalizedPhrase("always_run_key_cancelled"))
+                end
+            end
+            SaveAlwaysRunSettings()
+        end
+
+        keyButton = vgui.Create("DButton")
         keyButton:SetText("  " .. GetLocalizedPhrase("always_run_key") .. input.GetKeyName(TOGGLE_KEY))
         keyButton:SetTall(32)
         keyButton:SetTextColor(Color(255,255,255))
@@ -147,28 +173,6 @@ hook.Add("PopulateToolMenu", "AlwaysRunSettings", function()
         _G.AlwaysRunKeyButton = keyButton
         panel:AddItem(keyButton)
         keyButton:SetVisible(alwaysRunCustomKeyEnabled)
-
-        customKeyCheckbox.OnChange = function(_, value)
-            alwaysRunCustomKeyEnabled = value
-            keyButton:SetVisible(value)
-            if not value then
-                local savedKey = DEFAULT_TOGGLE_KEY
-                if file.Exists(saveFilePath, "DATA") then
-                    local _, key = string.match(file.Read(saveFilePath, "DATA") or "", "^(%d):(%d+):?(%d?):?(%d?)$")
-                    savedKey = tonumber(key) or DEFAULT_TOGGLE_KEY
-                end
-                TOGGLE_KEY = savedKey
-                if isCapturingKey then
-                    isCapturingKey = false
-                    hook.Remove("Think", "AlwaysRunKeyCapture")
-                    if _G.AlwaysRunKeyButton and _G.AlwaysRunKeyButton.SetText then
-                        _G.AlwaysRunKeyButton:SetText(GetLocalizedPhrase("always_run_key") .. input.GetKeyName(TOGGLE_KEY))
-                    end
-                    chat.AddText(Color(255,100,100), GetLocalizedPhrase("always_run_key_cancelled"))
-                end
-            end
-            SaveAlwaysRunSettings()
-        end
 
         local muteCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_mute_sound"))
         muteCheckbox:SetValue(alwaysRunMuteSound)
@@ -204,7 +208,7 @@ concommand.Add("always_run_set_key", function()
     end
     chat.AddText(Color(255,255,0), GetLocalizedPhrase("always_run_press_key_hint"))
     local pressed = {}
-    for i = 1, 159 do if input.IsKeyDown(i) then pressed[i] = true end end
+    for i = KEY_MIN, KEY_MAX do if input.IsKeyDown(i) then pressed[i] = true end end
     isCapturingKey = true
 
     hook.Add("PreRender", "AlwaysRunBlockEscMenu", function()
@@ -225,7 +229,7 @@ concommand.Add("always_run_set_key", function()
             return
         end
         local forbidden = GetForbiddenKeys()
-        for i = 1, 159 do
+        for i = KEY_MIN, KEY_MAX do
             if input.IsKeyDown(i) and not pressed[i] and not forbidden[i] then
                 TOGGLE_KEY = i
                 SaveAlwaysRunSettings()
