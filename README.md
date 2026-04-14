@@ -37,8 +37,51 @@ If your language is not supported or you notice an issue with a translation, fee
 - `lua/autorun/client/always_run_localization.lua`: Localization strings for supported languages.
 - `data/always_run_settings.txt`: File where the player's preference is saved.
 
+## How It Works (for beginners)
+The addon is fully client-side and relies on Garry's Mod hooks:
+
+1. **Startup and state loading**
+   - On `Initialize`, `InitPostEntity`, and `PopulateToolMenu`, the addon loads saved settings from `data/always_run_settings.txt`.
+   - It restores:
+     - whether always-run is enabled,
+     - selected toggle key,
+     - mute-sound setting,
+     - whether custom key mode is enabled.
+
+2. **Movement control**
+   - In the `CreateMove` hook, the addon modifies movement buttons each frame.
+   - If always-run is active, it forces `IN_SPEED` (run) unless the user is holding `ALT` or `SHIFT`, which temporarily switches to walk.
+
+3. **Toggle key handling**
+   - In the `Think` hook, it listens for key press transitions (up -> down) for the configured toggle key.
+   - When pressed, it toggles the state, writes settings to disk, and optionally plays UI sounds.
+
+4. **Spawnmenu UI**
+   - In `PopulateToolMenu`, it adds a panel under `Utilities -> Server`.
+   - The panel includes:
+     - master enable checkbox,
+     - custom key enable checkbox,
+     - key capture button,
+     - mute sound checkbox,
+     - GitHub button.
+
+5. **Localization**
+   - All visible UI text is loaded from `always_run_localization.lua` based on `gmod_language`.
+   - Missing translation keys fall back to English phrases.
+
 ## Contributing
 Contributions are welcome! If you'd like to add new features, fix bugs, or improve translations, feel free to submit a pull request.
+
+### Local smoke checks
+Before opening a PR, run:
+
+```bash
+./scripts/smoke.sh
+```
+
+This script verifies:
+- no legacy global UI references (`_G.AlwaysRunMainCheckbox` / `_G.AlwaysRunKeyButton`);
+- Lua syntax is valid for client scripts.
 
 ## License
 This addon is provided as-is. Feel free to modify and distribute it, but please give credit to the original author.

@@ -10,6 +10,13 @@ local alwaysRunCustomKeyEnabled = false
 local isCapturingKey = false
 local KEY_MIN, KEY_MAX = 1, 159
 local keyButton
+local mainCheckbox
+local keyboardIcon = Material("icon16/keyboard.png")
+local githubIcon = Material("icon32/github.png")
+
+local function GetKeyDisplayName(keyCode)
+    return input.GetKeyName(keyCode) or ("KEY_" .. tostring(keyCode or DEFAULT_TOGGLE_KEY))
+end
 
 local function GetForbiddenKeys()
     local forbidden = {
@@ -116,7 +123,7 @@ local function RebuildPanel(panel)
         RunConsoleCommand("always_run_enabled", value and "1" or "0")
         SaveAlwaysRunSettings()
     end
-    _G.AlwaysRunMainCheckbox = checkbox
+    mainCheckbox = checkbox
 
     panel:Help(GetLocalizedPhrase("always_run_description"))
     panel:Help(GetLocalizedPhrase("always_run_capslock_hint"))
@@ -127,7 +134,7 @@ local function RebuildPanel(panel)
 
     if keyButton then keyButton:Remove() end
     keyButton = vgui.Create("DButton")
-    keyButton:SetText("  " .. GetLocalizedPhrase("always_run_key") .. input.GetKeyName(TOGGLE_KEY))
+    keyButton:SetText("  " .. GetLocalizedPhrase("always_run_key") .. GetKeyDisplayName(TOGGLE_KEY))
     keyButton:SetTall(32)
     keyButton:SetTextColor(Color(255,255,255))
     keyButton:Dock(TOP)
@@ -142,10 +149,9 @@ local function RebuildPanel(panel)
     keyButton:SetToolTip(GetLocalizedPhrase("always_run_select_key_hint"))
     keyButton.PaintOver = function(self, w, h)
         surface.SetDrawColor(255,255,255,255)
-        surface.SetMaterial(Material("icon16/keyboard.png"))
+        surface.SetMaterial(keyboardIcon)
         surface.DrawTexturedRect(6, h/2-8, 16, 16)
     end
-    _G.AlwaysRunKeyButton = keyButton
     panel:AddItem(keyButton)
     keyButton:SetVisible(alwaysRunCustomKeyEnabled)
 
@@ -176,7 +182,7 @@ local function RebuildPanel(panel)
     githubButton.DoClick = function() gui.OpenURL("https://github.com/boxden/AlwaysRun") end
     githubButton.PaintOver = function(self, w, h)
         surface.SetDrawColor(255,255,255,255)
-        surface.SetMaterial(Material("icon32/github.png"))
+        surface.SetMaterial(githubIcon)
         surface.DrawTexturedRect(6, h/2-8, 16, 16)
     end
     panel:AddItem(githubButton)
@@ -192,16 +198,16 @@ end)
 if timer.Exists("AlwaysRunSyncCheckbox") then timer.Remove("AlwaysRunSyncCheckbox") end
 
 timer.Create("AlwaysRunSyncCheckbox", 0.1, 0, function()
-    if _G.AlwaysRunMainCheckbox and _G.AlwaysRunMainCheckbox:IsValid() then
-        if _G.AlwaysRunMainCheckbox:GetChecked() ~= alwaysRunToggled then
-            _G.AlwaysRunMainCheckbox:SetChecked(alwaysRunToggled)
+    if mainCheckbox and mainCheckbox:IsValid() then
+        if mainCheckbox:GetChecked() ~= alwaysRunToggled then
+            mainCheckbox:SetChecked(alwaysRunToggled)
         end
     end
 end)
 
 concommand.Add("always_run_set_key", function()
-    if _G.AlwaysRunKeyButton and _G.AlwaysRunKeyButton.SetText then
-        _G.AlwaysRunKeyButton:SetText(GetLocalizedPhrase("always_run_key") .. "...")
+    if keyButton and keyButton:IsValid() and keyButton.SetText then
+        keyButton:SetText(GetLocalizedPhrase("always_run_key") .. "...")
     end
     chat.AddText(Color(255,255,0), GetLocalizedPhrase("always_run_press_key_hint"))
     local pressed = {}
@@ -216,10 +222,10 @@ concommand.Add("always_run_set_key", function()
 
     hook.Add("Think", "AlwaysRunKeyCapture", function()
         if input.IsKeyDown(KEY_ESCAPE) then
-            if _G.AlwaysRunKeyButton and _G.AlwaysRunKeyButton.SetText then
-                _G.AlwaysRunKeyButton:SetText(GetLocalizedPhrase("always_run_key") .. input.GetKeyName(TOGGLE_KEY))
+            if keyButton and keyButton:IsValid() and keyButton.SetText then
+                keyButton:SetText(GetLocalizedPhrase("always_run_key") .. GetKeyDisplayName(TOGGLE_KEY))
             end
-            chat.AddText(Color(255,100,100), "Отмена выбора клавиши.")
+            chat.AddText(Color(255,100,100), GetLocalizedPhrase("always_run_key_cancelled"))
             isCapturingKey = false
             hook.Remove("Think", "AlwaysRunKeyCapture")
             hook.Remove("PreRender", "AlwaysRunBlockEscMenu")
@@ -230,9 +236,9 @@ concommand.Add("always_run_set_key", function()
             if input.IsKeyDown(i) and not pressed[i] and not forbidden[i] then
                 TOGGLE_KEY = i
                 SaveAlwaysRunSettings()
-                chat.AddText(Color(0,255,0), GetLocalizedPhrase("always_run_key_selected") .. input.GetKeyName(i))
-                if _G.AlwaysRunKeyButton and _G.AlwaysRunKeyButton.SetText then
-                    _G.AlwaysRunKeyButton:SetText(GetLocalizedPhrase("always_run_key") .. input.GetKeyName(i))
+                chat.AddText(Color(0,255,0), GetLocalizedPhrase("always_run_key_selected") .. GetKeyDisplayName(i))
+                if keyButton and keyButton:IsValid() and keyButton.SetText then
+                    keyButton:SetText(GetLocalizedPhrase("always_run_key") .. GetKeyDisplayName(i))
                 end
                 isCapturingKey = false
                 lastToggleKeyState = input.IsKeyDown(TOGGLE_KEY)
