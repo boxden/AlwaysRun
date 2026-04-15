@@ -37,6 +37,30 @@ If your language is not supported or you notice an issue with a translation, fee
 - `lua/autorun/client/always_run_localization.lua`: Localization strings for supported languages.
 - `data/always_run_settings.txt`: File where the player's preference is saved.
 
+## Why are there extra files outside `lua/` and `materials/`?
+You're right: for Garry's Mod runtime, only addon content (like `lua/`, `materials/`, `sound/`) is needed.
+
+The other files are for development quality and GitHub automation:
+
+- `.github/workflows/ci.yml`
+  - GitHub Actions pipeline.
+  - Runs automatic checks on push/PR so broken commits are caught early.
+
+- `scripts/smoke.sh`
+  - Local quick-check script.
+  - Verifies there are no forbidden legacy globals and runs Lua syntax checks.
+  - Useful before pushing changes.
+
+- `.luacheckrc`
+  - Configuration for `luacheck` (Lua linter).
+  - Tells linter which Garry's Mod globals are expected.
+
+- `stylua.toml`
+  - Formatting configuration for `stylua`.
+  - Keeps code style consistent between contributors.
+
+So yes: these are mainly for GitHub/dev workflow and maintainability, not required by the game client to run the addon.
+
 ## How It Works (for beginners)
 The addon is fully client-side and relies on Garry's Mod hooks:
 
