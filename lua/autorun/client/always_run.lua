@@ -51,6 +51,21 @@ local function PlayToggleSound(isEnabled)
     end)
 end
 
+local function IsSpeedModifierPressed()
+    if input.IsKeyDown(KEY_LSHIFT) or input.IsKeyDown(KEY_RSHIFT) then
+        return true
+    end
+    local speedBind = input.LookupBinding("+speed", true)
+    if not speedBind then return false end
+    local speedCode = input.GetKeyCode(speedBind)
+    return speedCode and speedCode > 0 and input.IsKeyDown(speedCode) or false
+end
+
+local function ShouldBypassAlwaysRun(player)
+    local moveType = player:GetMoveType()
+    return moveType == MOVETYPE_NOCLIP or moveType == MOVETYPE_OBSERVER or moveType == MOVETYPE_LADDER
+end
+
 local function GetForbiddenKeys()
     local forbidden = {
         [KEY_ESCAPE] = true, [KEY_F1] = true, [KEY_F2] = true, [KEY_F3] = true, [KEY_F4] = true,
@@ -160,12 +175,11 @@ hook.Add("CreateMove", "AlwaysRun", function(cmd)
     if not alwaysRunToggled then return end
     local player = LocalPlayer()
     if not IsValid(player) then return end
-    if player:GetMoveType() == MOVETYPE_NOCLIP then
-        -- In noclip we do not touch IN_SPEED at all:
-        -- this keeps always-run isolated and preserves manual shift boost.
+    if ShouldBypassAlwaysRun(player) then
+        -- Do not alter +speed for noclip/observer/ladder and ragdoll-like move states.
         return
     end
-    if input.IsKeyDown(KEY_LALT) or input.IsKeyDown(KEY_LSHIFT) then
+    if input.IsKeyDown(KEY_LALT) or input.IsKeyDown(KEY_RALT) or IsSpeedModifierPressed() then
         cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
     else
         cmd:SetButtons(bit.bor(cmd:GetButtons(), IN_SPEED))
