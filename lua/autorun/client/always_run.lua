@@ -8,8 +8,6 @@ local alwaysRunToggled = true
 local lastToggleKeyState = false
 local alwaysRunMuteSound = true
 local alwaysRunCustomKeyEnabled = false
-local alwaysRunRequireAltModifier = false
-local alwaysRunShowHudIndicator = true
 local isCapturingKey = false
 local KEY_MIN, KEY_MAX = 1, 159
 local keyButton
@@ -32,9 +30,7 @@ local function BuildDefaultProfile()
         toggled = true,
         toggle_key = DEFAULT_TOGGLE_KEY,
         mute_sound = true,
-        custom_key_enabled = false,
-        require_alt_modifier = false,
-        show_hud_indicator = true
+        custom_key_enabled = false
     }
 end
 
@@ -111,9 +107,7 @@ local function SaveAlwaysRunSettings()
         toggled = alwaysRunToggled,
         toggle_key = TOGGLE_KEY or DEFAULT_TOGGLE_KEY,
         mute_sound = alwaysRunMuteSound,
-        custom_key_enabled = alwaysRunCustomKeyEnabled,
-        require_alt_modifier = alwaysRunRequireAltModifier,
-        show_hud_indicator = alwaysRunShowHudIndicator
+        custom_key_enabled = alwaysRunCustomKeyEnabled
     }
     file.Write(saveFilePath, util.TableToJSON(data, true))
 end
@@ -130,16 +124,12 @@ local function LoadAlwaysRunSettings()
             TOGGLE_KEY = tonumber(profile.toggle_key) or DEFAULT_TOGGLE_KEY
             alwaysRunMuteSound = profile.mute_sound ~= false
             alwaysRunCustomKeyEnabled = profile.custom_key_enabled == true
-            alwaysRunRequireAltModifier = profile.require_alt_modifier == true
-            alwaysRunShowHudIndicator = profile.show_hud_indicator ~= false
         else
             local state, key, mute, custom = string.match(raw, "^(%d):(%d+):?(%d?):?(%d?)$")
             alwaysRunToggled = (state == "1")
             TOGGLE_KEY = tonumber(key) or DEFAULT_TOGGLE_KEY
             alwaysRunMuteSound = (mute == "1")
             alwaysRunCustomKeyEnabled = (custom == "1")
-            alwaysRunRequireAltModifier = false
-            alwaysRunShowHudIndicator = true
             SaveAlwaysRunSettings()
         end
     else
@@ -147,8 +137,6 @@ local function LoadAlwaysRunSettings()
         TOGGLE_KEY = defaultProfile.toggle_key
         alwaysRunMuteSound = defaultProfile.mute_sound
         alwaysRunCustomKeyEnabled = defaultProfile.custom_key_enabled
-        alwaysRunRequireAltModifier = defaultProfile.require_alt_modifier
-        alwaysRunShowHudIndicator = defaultProfile.show_hud_indicator
         SaveAlwaysRunSettings()
     end
     RunConsoleCommand("always_run_enabled", alwaysRunToggled and "1" or "0")
@@ -158,10 +146,8 @@ end
 hook.Add("Think", "AlwaysRunToggleKey", function()
     if isCapturingKey then return end
     if not alwaysRunCustomKeyEnabled then lastToggleKeyState = false return end
-    local modifierPressed = input.IsKeyDown(KEY_LALT) or input.IsKeyDown(KEY_RALT)
-    local modifierAllowed = (not alwaysRunRequireAltModifier) or modifierPressed
     local keyDown = input.IsKeyDown(TOGGLE_KEY)
-    if keyDown and not lastToggleKeyState and modifierAllowed then
+    if keyDown and not lastToggleKeyState then
         alwaysRunToggled = not alwaysRunToggled
         RunConsoleCommand("always_run_enabled", alwaysRunToggled and "1" or "0")
         SaveAlwaysRunSettings()
@@ -186,21 +172,6 @@ hook.Add("CreateMove", "AlwaysRun", function(cmd)
     end
 end)
 
-hook.Add("HUDPaint", "AlwaysRunHUDIndicator", function()
-    if not alwaysRunShowHudIndicator or not alwaysRunToggled then return end
-    draw.SimpleTextOutlined(
-        GetLocalizedPhrase("always_run_hud_enabled"),
-        "DermaLarge",
-        24,
-        ScrH() - 54,
-        Color(96, 220, 96),
-        TEXT_ALIGN_LEFT,
-        TEXT_ALIGN_BOTTOM,
-        1,
-        Color(0, 0, 0, 200)
-    )
-end)
-
 local function RebuildPanel(panel)
     panel:ClearControls()
     local checkbox = panel:CheckBox(GetLocalizedPhrase("always_run_enabled"))
@@ -220,15 +191,6 @@ local function RebuildPanel(panel)
     customKeyCheckbox:DockMargin(0, 8, 0, 0)
     local customKeyDescription = panel:Help(GetLocalizedPhrase("always_run_custom_key_description"))
     customKeyDescription:SetVisible(alwaysRunCustomKeyEnabled)
-
-    local requireAltCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_require_alt_modifier"))
-    requireAltCheckbox:SetValue(alwaysRunRequireAltModifier)
-    requireAltCheckbox:SetVisible(alwaysRunCustomKeyEnabled)
-    requireAltCheckbox:DockMargin(16, 0, 0, 4)
-    requireAltCheckbox.OnChange = function(_, value)
-        alwaysRunRequireAltModifier = value
-        SaveAlwaysRunSettings()
-    end
 
     if keyButton then keyButton:Remove() end
     keyButton = vgui.Create("DButton")
@@ -265,13 +227,6 @@ local function RebuildPanel(panel)
     muteCheckbox:DockMargin(16, 0, 0, 0)
     muteCheckbox.OnChange = function(_, value)
         alwaysRunMuteSound = value
-        SaveAlwaysRunSettings()
-    end
-
-    local hudCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_show_hud_indicator"))
-    hudCheckbox:SetValue(alwaysRunShowHudIndicator)
-    hudCheckbox.OnChange = function(_, value)
-        alwaysRunShowHudIndicator = value
         SaveAlwaysRunSettings()
     end
 

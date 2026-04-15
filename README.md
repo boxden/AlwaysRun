@@ -7,9 +7,6 @@ The **Always Run** addon for Garry's Mod allows players to enable or disable a f
 - **Settings Menu Integration**: Easily toggle the feature on or off via the `Utilities -> Server` menu.
 - **Localization Support**: Supports multiple languages, including English, Russian, French, German, and more.
 - **Persistent Settings**: Saves the player's preference to a file, ensuring it is remembered between sessions.
-- **Per-Gamemode Profiles**: Settings are saved per active gamemode (with global fallback).
-- **Optional HUD Indicator**: Displays a HUD hint while Always Run is enabled.
-- **Advanced Toggle Key**: Optional ALT modifier requirement for toggle key.
 
 ## Installation
 1. Download the addon files.
@@ -85,18 +82,6 @@ Before opening a PR, run:
 This script verifies:
 - no legacy global UI references (`_G.AlwaysRunMainCheckbox` / `_G.AlwaysRunKeyButton`);
 - Lua syntax is valid for client scripts.
-
-CI additionally runs:
-- `luacheck` (warning-only);
-- `stylua --check` (warning-only).
-
-## Ideas for future improvements
-- **Per-gamemode behavior**: allow separate profiles for Sandbox, DarkRP, etc.
-- **Advanced key handling**: support modifier combos (e.g. `ALT + CAPSLOCK`) for toggling.
-- **Optional HUD indicator**: show a small on-screen status icon when Always Run is active.
-- **Config migration/versioning**: add a settings version field to safely evolve saved format.
-- **More localization coverage**: fill newer phrases in all supported languages.
-- **Automated release checks**: add luacheck/stylua jobs in CI in addition to smoke checks.
 
 ## License
 This addon is provided as-is. Feel free to modify and distribute it, but please give credit to the original author.

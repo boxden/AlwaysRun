@@ -18,9 +18,6 @@ return {
         always_run_select_key_hint = "Click to select a new key for always run",
         always_run_custom_key_enable = "Enable custom toggle key",
         always_run_custom_key_description = "Use an unbound key for toggle to avoid conflicts with existing actions.",
-        always_run_require_alt_modifier = "Require ALT modifier for toggle key",
-        always_run_show_hud_indicator = "Show HUD indicator when enabled",
-        always_run_hud_enabled = "Always Run: ON",
         always_run_key_cancelled = "Key assignment cancelled."
     },
     fr = {
@@ -61,9 +58,6 @@ return {
         always_run_select_key_hint = "Нажмите, чтобы выбрать новую клавишу для автобега",
         always_run_custom_key_enable = "Включить пользовательскую клавишу",
         always_run_custom_key_description = "Используйте свободную клавишу без назначения, чтобы избежать конфликтов с действиями.",
-        always_run_require_alt_modifier = "Требовать ALT как модификатор клавиши",
-        always_run_show_hud_indicator = "Показывать HUD-индикатор при включении",
-        always_run_hud_enabled = "Автобег: ВКЛ",
         always_run_key_cancelled = "Назначение клавиши отменено."
     },
     es = {
