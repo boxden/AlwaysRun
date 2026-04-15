@@ -18,3 +18,27 @@ jobs:
 
       - name: Run smoke checks
         run: ./scripts/smoke.sh
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install luacheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y luarocks
+          sudo luarocks install luacheck
+
+      - name: Run luacheck
+        continue-on-error: true
+        run: luacheck lua/autorun/client/*.lua
+
+      - name: Run Stylua (check mode)
+        continue-on-error: true
+        uses: JohnnyMorganz/stylua-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: latest
+          args: --check lua/autorun/client/*.lua

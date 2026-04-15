@@ -22,4 +22,14 @@ else
   exit 1
 fi
 
+if command -v luacheck >/dev/null 2>&1; then
+  echo "[smoke] Running luacheck..."
+  luacheck lua/autorun/client/*.lua || true
+fi
+
+if command -v stylua >/dev/null 2>&1; then
+  echo "[smoke] Running stylua check..."
+  stylua --check lua/autorun/client/*.lua || true
+fi
+
 echo "[smoke] OK"
