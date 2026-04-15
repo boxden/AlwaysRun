@@ -202,6 +202,7 @@ local function RebuildPanel(panel)
 
     panel:Help(GetLocalizedPhrase("always_run_description"))
     panel:Help(GetLocalizedPhrase("always_run_capslock_hint"))
+    panel:Help(GetLocalizedPhrase("always_run_speed_limit_note"))
 
     local customKeyCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_custom_key_enable"))
     customKeyCheckbox:SetValue(alwaysRunCustomKeyEnabled)
