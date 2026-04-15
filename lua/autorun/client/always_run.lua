@@ -41,14 +41,7 @@ end
 local function PlayToggleSound(isEnabled)
     if alwaysRunMuteSound then return end
     local toggleSound = isEnabled and "garrysmod/ui_click.wav" or "garrysmod/ui_return.wav"
-    sound.PlayFile("sound/" .. toggleSound, "noplay noblock", function(channel)
-        if channel then
-            channel:SetVolume(1)
-            channel:Play()
-            return
-        end
-        surface.PlaySound(toggleSound)
-    end)
+    surface.PlaySound(toggleSound)
 end
 
 local function IsSpeedModifierPressed()
@@ -202,7 +195,6 @@ local function RebuildPanel(panel)
 
     panel:Help(GetLocalizedPhrase("always_run_description"))
     panel:Help(GetLocalizedPhrase("always_run_capslock_hint"))
-    panel:Help(GetLocalizedPhrase("always_run_speed_limit_note"))
 
     local customKeyCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_custom_key_enable"))
     customKeyCheckbox:SetValue(alwaysRunCustomKeyEnabled)

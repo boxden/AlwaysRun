@@ -24,9 +24,6 @@ The **Always Run** addon for Garry's Mod allows players to enable or disable a f
 - **ALT**: Temporarily walk while Always Run is enabled.
 - **SHIFT**: Temporarily walk while Always Run is enabled.
 
-## Speed Note
-This addon does **not** raise max run/noclip speed. It only automates pressing run. Actual top speed is controlled by the server and gamemode.
-
 ## Localization
 
 Supports 20+ languages, including:
