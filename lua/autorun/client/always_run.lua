@@ -18,6 +18,11 @@ local function GetKeyDisplayName(keyCode)
     return input.GetKeyName(keyCode) or ("KEY_" .. tostring(keyCode or DEFAULT_TOGGLE_KEY))
 end
 
+local function PlayToggleSound(isEnabled)
+    if alwaysRunMuteSound then return end
+    surface.PlaySound(isEnabled and "buttons/button14.wav" or "buttons/button19.wav")
+end
+
 local function GetForbiddenKeys()
     local forbidden = {
         [KEY_ESCAPE] = true, [KEY_F1] = true, [KEY_F2] = true, [KEY_F3] = true, [KEY_F4] = true,
@@ -82,7 +87,7 @@ local function LoadAlwaysRunSettings()
         alwaysRunMuteSound = (mute == "1")
         alwaysRunCustomKeyEnabled = (custom == "1")
     else
-        alwaysRunToggled, TOGGLE_KEY, alwaysRunMuteSound, alwaysRunCustomKeyEnabled = true, DEFAULT_TOGGLE_KEY, true, false
+        alwaysRunToggled, TOGGLE_KEY, alwaysRunMuteSound, alwaysRunCustomKeyEnabled = true, DEFAULT_TOGGLE_KEY, false, false
         SaveAlwaysRunSettings()
     end
     RunConsoleCommand("always_run_enabled", alwaysRunToggled and "1" or "0")
@@ -97,9 +102,7 @@ hook.Add("Think", "AlwaysRunToggleKey", function()
         alwaysRunToggled = not alwaysRunToggled
         RunConsoleCommand("always_run_enabled", alwaysRunToggled and "1" or "0")
         SaveAlwaysRunSettings()
-        if not alwaysRunMuteSound then
-            surface.PlaySound(alwaysRunToggled and "buttons/button14.wav" or "buttons/button19.wav")
-        end
+        PlayToggleSound(alwaysRunToggled)
     end
     lastToggleKeyState = keyDown
 end)
@@ -122,6 +125,7 @@ local function RebuildPanel(panel)
         alwaysRunToggled = value
         RunConsoleCommand("always_run_enabled", value and "1" or "0")
         SaveAlwaysRunSettings()
+        PlayToggleSound(value)
     end
     mainCheckbox = checkbox
 
@@ -131,7 +135,8 @@ local function RebuildPanel(panel)
     local customKeyCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_custom_key_enable"))
     customKeyCheckbox:SetValue(alwaysRunCustomKeyEnabled)
     customKeyCheckbox:DockMargin(0, 8, 0, 0)
-    panel:Help(GetLocalizedPhrase("always_run_custom_key_description"))
+    local customKeyDescription = panel:Help(GetLocalizedPhrase("always_run_custom_key_description"))
+    customKeyDescription:SetVisible(alwaysRunCustomKeyEnabled)
 
     if keyButton then keyButton:Remove() end
     keyButton = vgui.Create("DButton")
