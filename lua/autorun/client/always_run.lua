@@ -13,6 +13,7 @@ local keyButton
 local mainCheckbox
 local keyboardIcon = Material("icon16/keyboard.png")
 local githubIcon = Material("icon32/github.png")
+local wasInNoclipLastFrame = false
 
 local function GetKeyDisplayName(keyCode)
     return input.GetKeyName(keyCode) or ("KEY_" .. tostring(keyCode or DEFAULT_TOGGLE_KEY))
@@ -20,7 +21,13 @@ end
 
 local function PlayToggleSound(isEnabled)
     if alwaysRunMuteSound then return end
-    surface.PlaySound(isEnabled and "buttons/button14.wav" or "buttons/button19.wav")
+    local toggleSound = isEnabled and "buttons/button14.wav" or "buttons/button19.wav"
+    local player = LocalPlayer()
+    if IsValid(player) then
+        player:EmitSound(toggleSound, 0, 100, 1, CHAN_STATIC)
+    else
+        surface.PlaySound(toggleSound)
+    end
 end
 
 local function GetForbiddenKeys()
@@ -115,11 +122,13 @@ hook.Add("CreateMove", "AlwaysRun", function(cmd)
         -- Keep always-run isolated from noclip flight speed,
         -- but preserve manual acceleration while holding Shift.
         local isManualNoclipBoost = input.IsKeyDown(KEY_LSHIFT) or input.IsKeyDown(KEY_RSHIFT)
-        if not isManualNoclipBoost then
+        if not wasInNoclipLastFrame and not isManualNoclipBoost then
             cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
         end
+        wasInNoclipLastFrame = true
         return
     end
+    wasInNoclipLastFrame = false
     if input.IsKeyDown(KEY_LALT) or input.IsKeyDown(KEY_LSHIFT) then
         cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
     else
