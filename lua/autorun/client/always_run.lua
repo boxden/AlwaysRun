@@ -21,7 +21,14 @@ end
 local function PlayToggleSound(isEnabled)
     if alwaysRunMuteSound then return end
     local toggleSound = isEnabled and "garrysmod/ui_click.wav" or "garrysmod/ui_return.wav"
-    surface.PlaySound(toggleSound)
+    sound.PlayFile("sound/" .. toggleSound, "noplay noblock", function(channel)
+        if channel then
+            channel:SetVolume(1)
+            channel:Play()
+            return
+        end
+        surface.PlaySound(toggleSound)
+    end)
 end
 
 local function GetForbiddenKeys()
