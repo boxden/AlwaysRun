@@ -131,6 +131,7 @@ local function RebuildPanel(panel)
     local customKeyCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_custom_key_enable"))
     customKeyCheckbox:SetValue(alwaysRunCustomKeyEnabled)
     customKeyCheckbox:DockMargin(0, 8, 0, 0)
+    panel:Help(GetLocalizedPhrase("always_run_custom_key_description"))
 
     if keyButton then keyButton:Remove() end
     keyButton = vgui.Create("DButton")
@@ -163,6 +164,7 @@ local function RebuildPanel(panel)
 
     local muteCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_mute_sound"))
     muteCheckbox:SetValue(alwaysRunMuteSound)
+    muteCheckbox:SetVisible(alwaysRunCustomKeyEnabled)
     muteCheckbox.OnChange = function(_, value)
         alwaysRunMuteSound = value
         SaveAlwaysRunSettings()

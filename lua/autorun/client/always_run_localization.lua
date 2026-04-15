@@ -17,6 +17,7 @@ return {
         always_run_mute_sound = "Mute toggle sound",
         always_run_select_key_hint = "Click to select a new key for always run",
         always_run_custom_key_enable = "Enable custom toggle key",
+        always_run_custom_key_description = "Use an unbound key for toggle to avoid conflicts with existing actions.",
         always_run_key_cancelled = "Key assignment cancelled."
     },
     fr = {
@@ -56,6 +57,7 @@ return {
         always_run_mute_sound = "Отключить звук переключения",
         always_run_select_key_hint = "Нажмите, чтобы выбрать новую клавишу для автобега",
         always_run_custom_key_enable = "Включить пользовательскую клавишу",
+        always_run_custom_key_description = "Используйте свободную клавишу без назначения, чтобы избежать конфликтов с действиями.",
         always_run_key_cancelled = "Назначение клавиши отменено."
     },
     es = {
