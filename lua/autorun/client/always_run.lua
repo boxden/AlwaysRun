@@ -125,7 +125,6 @@ local function RebuildPanel(panel)
         alwaysRunToggled = value
         RunConsoleCommand("always_run_enabled", value and "1" or "0")
         SaveAlwaysRunSettings()
-        PlayToggleSound(value)
     end
     mainCheckbox = checkbox
 
