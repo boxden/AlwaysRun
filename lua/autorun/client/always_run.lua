@@ -109,7 +109,14 @@ end)
 
 hook.Add("CreateMove", "AlwaysRun", function(cmd)
     if not alwaysRunToggled then return end
-    if LocalPlayer():GetMoveType() == MOVETYPE_NOCLIP then return end
+    local player = LocalPlayer()
+    if not IsValid(player) then return end
+    if player:GetMoveType() == MOVETYPE_NOCLIP then
+        -- While flying in noclip we explicitly remove forced sprint
+        -- so "always run" never affects movement in this mode.
+        cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
+        return
+    end
     if input.IsKeyDown(KEY_LALT) or input.IsKeyDown(KEY_LSHIFT) then
         cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
     else
