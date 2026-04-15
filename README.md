@@ -83,6 +83,14 @@ This script verifies:
 - no legacy global UI references (`_G.AlwaysRunMainCheckbox` / `_G.AlwaysRunKeyButton`);
 - Lua syntax is valid for client scripts.
 
+## Ideas for future improvements
+- **Per-gamemode behavior**: allow separate profiles for Sandbox, DarkRP, etc.
+- **Advanced key handling**: support modifier combos (e.g. `ALT + CAPSLOCK`) for toggling.
+- **Optional HUD indicator**: show a small on-screen status icon when Always Run is active.
+- **Config migration/versioning**: add a settings version field to safely evolve saved format.
+- **More localization coverage**: fill newer phrases in all supported languages.
+- **Automated release checks**: add luacheck/stylua jobs in CI in addition to smoke checks.
+
 ## License
 This addon is provided as-is. Feel free to modify and distribute it, but please give credit to the original author.
 
