@@ -5,7 +5,7 @@ local DEFAULT_TOGGLE_KEY = KEY_CAPSLOCK
 local TOGGLE_KEY = DEFAULT_TOGGLE_KEY
 local alwaysRunToggled = true
 local lastToggleKeyState = false
-local alwaysRunMuteSound = false
+local alwaysRunMuteSound = true
 local alwaysRunCustomKeyEnabled = false
 local isCapturingKey = false
 local KEY_MIN, KEY_MAX = 1, 159
@@ -87,7 +87,7 @@ local function LoadAlwaysRunSettings()
         alwaysRunMuteSound = (mute == "1")
         alwaysRunCustomKeyEnabled = (custom == "1")
     else
-        alwaysRunToggled, TOGGLE_KEY, alwaysRunMuteSound, alwaysRunCustomKeyEnabled = true, DEFAULT_TOGGLE_KEY, false, false
+        alwaysRunToggled, TOGGLE_KEY, alwaysRunMuteSound, alwaysRunCustomKeyEnabled = true, DEFAULT_TOGGLE_KEY, true, false
         SaveAlwaysRunSettings()
     end
     RunConsoleCommand("always_run_enabled", alwaysRunToggled and "1" or "0")
@@ -112,9 +112,12 @@ hook.Add("CreateMove", "AlwaysRun", function(cmd)
     local player = LocalPlayer()
     if not IsValid(player) then return end
     if player:GetMoveType() == MOVETYPE_NOCLIP then
-        -- While flying in noclip we explicitly remove forced sprint
-        -- so "always run" never affects movement in this mode.
-        cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
+        -- Keep always-run isolated from noclip flight speed,
+        -- but preserve manual acceleration while holding Shift.
+        local isManualNoclipBoost = input.IsKeyDown(KEY_LSHIFT) or input.IsKeyDown(KEY_RSHIFT)
+        if not isManualNoclipBoost then
+            cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
+        end
         return
     end
     if input.IsKeyDown(KEY_LALT) or input.IsKeyDown(KEY_LSHIFT) then
