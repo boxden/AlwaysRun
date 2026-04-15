@@ -22,7 +22,7 @@ The **Always Run** addon for Garry's Mod allows players to enable or disable a f
 
 ## Key Bindings
 - **ALT**: Temporarily walk while Always Run is enabled.
-- **SHIFT**: Temporarily walk while Always Run is enabled.
+- **Your `+speed` bind** (default often SHIFT): Also temporarily walk while Always Run is enabled.
 
 ## Localization
 
