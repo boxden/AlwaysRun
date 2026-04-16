@@ -8,7 +8,6 @@ local alwaysRunToggled = true
 local lastToggleKeyState = false
 local alwaysRunMuteSound = true
 local alwaysRunCustomKeyEnabled = false
-local alwaysRunDisableWithMWWeapons = false
 local isCapturingKey = false
 local KEY_MIN, KEY_MAX = 1, 159
 local keyButton
@@ -31,8 +30,7 @@ local function BuildDefaultProfile()
         toggled = true,
         toggle_key = DEFAULT_TOGGLE_KEY,
         mute_sound = true,
-        custom_key_enabled = false,
-        disable_with_mw_weapons = false
+        custom_key_enabled = false
     }
 end
 
@@ -127,8 +125,7 @@ local function SaveAlwaysRunSettings()
         toggled = alwaysRunToggled,
         toggle_key = TOGGLE_KEY or DEFAULT_TOGGLE_KEY,
         mute_sound = alwaysRunMuteSound,
-        custom_key_enabled = alwaysRunCustomKeyEnabled,
-        disable_with_mw_weapons = alwaysRunDisableWithMWWeapons
+        custom_key_enabled = alwaysRunCustomKeyEnabled
     }
     file.Write(saveFilePath, util.TableToJSON(data, true))
 end
@@ -145,14 +142,12 @@ local function LoadAlwaysRunSettings()
             TOGGLE_KEY = tonumber(profile.toggle_key) or DEFAULT_TOGGLE_KEY
             alwaysRunMuteSound = profile.mute_sound ~= false
             alwaysRunCustomKeyEnabled = profile.custom_key_enabled == true
-            alwaysRunDisableWithMWWeapons = profile.disable_with_mw_weapons == true
         else
             local state, key, mute, custom = string.match(raw, "^(%d):(%d+):?(%d?):?(%d?)$")
             alwaysRunToggled = (state == "1")
             TOGGLE_KEY = tonumber(key) or DEFAULT_TOGGLE_KEY
             alwaysRunMuteSound = (mute == "1")
             alwaysRunCustomKeyEnabled = (custom == "1")
-            alwaysRunDisableWithMWWeapons = false
             SaveAlwaysRunSettings()
         end
     else
@@ -160,7 +155,6 @@ local function LoadAlwaysRunSettings()
         TOGGLE_KEY = defaultProfile.toggle_key
         alwaysRunMuteSound = defaultProfile.mute_sound
         alwaysRunCustomKeyEnabled = defaultProfile.custom_key_enabled
-        alwaysRunDisableWithMWWeapons = defaultProfile.disable_with_mw_weapons
         SaveAlwaysRunSettings()
     end
     RunConsoleCommand("always_run_enabled", alwaysRunToggled and "1" or "0")
@@ -184,15 +178,6 @@ hook.Add("CreateMove", "AlwaysRun", function(cmd)
     if not alwaysRunToggled then return end
     local player = LocalPlayer()
     if not IsValid(player) then return end
-    if alwaysRunDisableWithMWWeapons then
-        local weapon = player:GetActiveWeapon()
-        if IsValid(weapon) then
-            local class = string.lower(weapon:GetClass() or "")
-            if string.find(class, "mw", 1, true) then
-                return
-            end
-        end
-    end
     if ShouldBypassAlwaysRun(player) then
         -- Do not alter +speed for noclip/observer/ladder and ragdoll-like move states.
         return
@@ -217,7 +202,6 @@ local function RebuildPanel(panel)
 
     panel:Help(GetLocalizedPhrase("always_run_description"))
     panel:Help(GetLocalizedPhrase("always_run_capslock_hint"))
-    panel:Help(GetLocalizedPhrase("always_run_mw_compat_hint"))
 
     local customKeyCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_custom_key_enable"))
     customKeyCheckbox:SetValue(alwaysRunCustomKeyEnabled)
@@ -263,13 +247,6 @@ local function RebuildPanel(panel)
         SaveAlwaysRunSettings()
     end
 
-    local mwCompatCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_disable_with_mw_weapons"))
-    mwCompatCheckbox:SetValue(alwaysRunDisableWithMWWeapons)
-    mwCompatCheckbox.OnChange = function(_, value)
-        alwaysRunDisableWithMWWeapons = value
-        SaveAlwaysRunSettings()
-    end
-
     local githubButton = vgui.Create("DButton")
     githubButton:SetText("  " .. GetLocalizedPhrase("always_run_github"))
     githubButton:SetTall(32)
@@ -305,13 +282,6 @@ timer.Create("AlwaysRunSyncCheckbox", 0.1, 0, function()
             mainCheckbox:SetChecked(alwaysRunToggled)
         end
     end
-end)
-
-concommand.Add("always_run_toggle", function()
-    alwaysRunToggled = not alwaysRunToggled
-    RunConsoleCommand("always_run_enabled", alwaysRunToggled and "1" or "0")
-    SaveAlwaysRunSettings()
-    PlayToggleSound(alwaysRunToggled)
 end)
 
 concommand.Add("always_run_set_key", function()
