@@ -25,6 +25,45 @@ local function SyncEnabledConVar()
     RunConsoleCommand(ENABLED_CONVAR_NAME, alwaysRunToggled and "1" or "0")
 end
 
+local function EscapeJSONString(value)
+    local escaped = tostring(value)
+    escaped = escaped:gsub("\\", "\\\\")
+    escaped = escaped:gsub("\"", "\\\"")
+    escaped = escaped:gsub("\r", "\\r")
+    escaped = escaped:gsub("\n", "\\n")
+    escaped = escaped:gsub("\t", "\\t")
+    return escaped
+end
+
+local function SerializeAlwaysRunSettings(data)
+    local lines = {
+        "{",
+        "  \"version\": " .. tostring(data.version or SETTINGS_VERSION) .. ",",
+        "  \"profiles\": {"
+    }
+
+    local profileNames = {}
+    for profileName in pairs(data.profiles or {}) do
+        profileNames[#profileNames + 1] = profileName
+    end
+    table.sort(profileNames)
+
+    for index, profileName in ipairs(profileNames) do
+        local profile = data.profiles[profileName] or {}
+        lines[#lines + 1] = "    \"" .. EscapeJSONString(profileName) .. "\": {"
+        lines[#lines + 1] = "      \"toggled\": " .. tostring(profile.toggled ~= false) .. ","
+        lines[#lines + 1] = "      \"toggle_key\": " .. tostring(tonumber(profile.toggle_key) or DEFAULT_TOGGLE_KEY) .. ","
+        lines[#lines + 1] = "      \"mute_sound\": " .. tostring(profile.mute_sound ~= false) .. ","
+        lines[#lines + 1] = "      \"custom_key_enabled\": " .. tostring(profile.custom_key_enabled == true)
+        lines[#lines + 1] = "    }" .. (index < #profileNames and "," or "")
+    end
+
+    lines[#lines + 1] = "  }"
+    lines[#lines + 1] = "}"
+
+    return table.concat(lines, "\n")
+end
+
 local function GetCurrentProfileKey()
     if engine and engine.ActiveGamemode then
         local gameMode = engine.ActiveGamemode()
@@ -137,7 +176,7 @@ local function SaveAlwaysRunSettings()
         mute_sound = alwaysRunMuteSound,
         custom_key_enabled = alwaysRunCustomKeyEnabled
     }
-    file.Write(SAVE_FILE_PATH, util.TableToJSON(data, true))
+    file.Write(SAVE_FILE_PATH, SerializeAlwaysRunSettings(data))
 end
 
 local function LoadAlwaysRunSettings()
@@ -327,21 +366,40 @@ local function FinishKeyCapture(newKey)
 end
 
 concommand.Add(SET_KEY_COMMAND, function()
+    if isCapturingKey then return end
     if keyButton and keyButton:IsValid() and keyButton.SetText then
         keyButton:SetText(GetLocalizedPhrase("always_run_key") .. "...")
     end
-    chat.AddText(Color(255,255,0), GetLocalizedPhrase("always_run_press_key_hint"))
     isCapturingKey = true
-    input.StartKeyTrapping()
 
-    hook.Add("Think", "web_AlwaysRunKeyCapture", function()
-        local trappedKey = input.CheckKeyTrapping()
-        if trappedKey and trappedKey >= KEY_MIN and trappedKey <= KEY_MAX then
-            FinishKeyCapture(trappedKey)
-        elseif trappedKey == KEY_ESCAPE then
-            FinishKeyCapture(KEY_ESCAPE)
-        end
+    timer.Simple(0, function()
+        if not isCapturingKey then return end
+
+        RunConsoleCommand("-menu")
+        gui.EnableScreenClicker(false)
+        chat.AddText(Color(255,255,0), GetLocalizedPhrase("always_run_press_key_hint"))
+        input.StartKeyTrapping()
+
+        hook.Add("Think", "web_AlwaysRunKeyCapture", function()
+            local trappedKey = input.CheckKeyTrapping()
+            if trappedKey and trappedKey ~= 0 then
+                FinishKeyCapture(trappedKey)
+            end
+        end)
     end)
+end)
+
+cvars.AddChangeCallback(ENABLED_CONVAR_NAME, function(_, _, newValue)
+    alwaysRunToggled = tonumber(newValue) == 1
+end, "web_AlwaysRunEnabledSync")
+
+hook.Add("ShutDown", "web_AlwaysRunCleanup", function()
+    if isCapturingKey then
+        hook.Remove("Think", "web_AlwaysRunKeyCapture")
+        if keyButton and keyButton:IsValid() and keyButton.SetText then
+            keyButton:SetText(GetLocalizedPhrase("always_run_key") .. GetKeyDisplayName(TOGGLE_KEY))
+        end
+    end
 end)
 
 hook.Add("Initialize", "web_AlwaysRunLoadSettings", LoadAlwaysRunSettings)
@@ -351,7 +409,3 @@ hook.Add("OnGamemodeLoaded", "web_AlwaysRunEnsureConVar", function()
     RunConsoleCommand(ENABLED_CONVAR_NAME, savedValue)
     alwaysRunToggled = alwaysRunEnabled:GetBool()
 end)
-
-cvars.AddChangeCallback(ENABLED_CONVAR_NAME, function(_, _, newValue)
-    alwaysRunToggled = tonumber(newValue) == 1
-end, "web_AlwaysRunEnabledSync")
