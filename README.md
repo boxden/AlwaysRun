@@ -1,12 +1,13 @@
 # Always Run Addon for Garry's Mod
 
-The **Always Run** addon for Garry's Mod allows players to enable or disable a feature where their character always runs by default. This can be toggled on or off via a checkbox in the settings menu. The addon also remembers the player's preference between sessions.
+The **Always Run** addon for Garry's Mod lets players keep running by default on the client, while still being able to temporarily stop auto-run with their normal movement modifier keys. The addon also remembers preferences between sessions and across gamemodes.
 
 ## Features
-- **Always Run Toggle**: Automatically run unless holding `ALT` or `SHIFT` to walk.
-- **Settings Menu Integration**: Easily toggle the feature on or off via the `Utilities -> Server` menu.
-- **Localization Support**: Supports multiple languages, including English, Russian, French, German, and more.
-- **Persistent Settings**: Saves the player's preference to a file, ensuring it is remembered between sessions.
+- **Always Run Toggle**: Automatically holds run unless the player is holding their current `+speed` or `+walk` bind.
+- **Settings Menu Integration**: Available in `Utilities -> User`.
+- **Custom Toggle Key**: Supports an optional custom key for enabling or disabling auto-run.
+- **Localized UI**: Includes translations for 20+ languages.
+- **Persistent Profiles**: Saves per-gamemode preferences to a client data file.
 
 ## Installation
 1. Download the addon files.
@@ -15,14 +16,17 @@ The **Always Run** addon for Garry's Mod allows players to enable or disable a f
 
 ## Usage
 1. Open the spawn menu (`Q` by default).
-2. Navigate to `Utilities -> Server`.
+2. Navigate to `Utilities -> User`.
 3. Find the `Always Run` section.
 4. Toggle the checkbox to enable or disable the feature.
-5. Your preference will be saved automatically.
+5. Optional: enable a custom toggle key and choose an unbound key.
+6. Your preferences will be saved automatically.
 
 ## Key Bindings
-- **ALT**: Temporarily walk while Always Run is enabled.
-- **Your `+speed` bind** (default often SHIFT): Also temporarily walk while Always Run is enabled.
+- **Your `+speed` bind**: Temporarily stops auto-run while held.
+- **Your `+walk` bind**: Also temporarily stops auto-run while held.
+- **Custom toggle key**: Optional key for turning auto-run on or off.
+- **ESC during key capture**: Cancels custom key assignment.
 
 ## Localization
 
@@ -35,31 +39,34 @@ If your language is not supported or you notice an issue with a translation, fee
 ## File Structure
 - `lua/autorun/client/always_run.lua`: Main logic for the addon.
 - `lua/autorun/client/always_run_localization.lua`: Localization strings for supported languages.
-- `data/always_run_settings.txt`: File where the player's preference is saved.
+- `data/web_always_run_settings.txt`: File where the player's client preferences are saved.
 
 ## How It Works (for beginners)
 The addon is fully client-side and relies on Garry's Mod hooks:
 
 1. **Startup and state loading**
-   - On `Initialize`, `InitPostEntity`, and `PopulateToolMenu`, the addon loads saved settings from `data/always_run_settings.txt`.
+   - On `Initialize`, `InitPostEntity`, and `PopulateToolMenu`, the addon loads saved settings from `data/web_always_run_settings.txt`.
    - It restores:
      - whether always-run is enabled,
      - selected toggle key,
      - mute-sound setting,
-     - whether custom key mode is enabled.
+     - whether custom key mode is enabled,
+     - the current gamemode profile.
 
 2. **Movement control**
    - In the `CreateMove` hook, the addon modifies movement buttons each frame.
-   - If always-run is active, it forces `IN_SPEED` (run) unless the user is holding `ALT` or `SHIFT`, which temporarily switches to walk.
+   - If always-run is active, it forces `IN_SPEED` unless the player is holding a key bound to `+speed` or `+walk`.
 
 3. **Toggle key handling**
    - In the `Think` hook, it listens for key press transitions (up -> down) for the configured toggle key.
    - When pressed, it toggles the state, writes settings to disk, and optionally plays UI sounds.
+   - During key capture, pressing `ESC` cancels the assignment.
 
 4. **Spawnmenu UI**
-   - In `PopulateToolMenu`, it adds a panel under `Utilities -> Server`.
+   - In `PopulateToolMenu`, it adds a panel under `Utilities -> User`.
    - The panel includes:
      - master enable checkbox,
+     - dynamic description based on the player's current `+speed` and `+walk` binds,
      - custom key enable checkbox,
      - key capture button,
      - mute sound checkbox,
@@ -68,24 +75,14 @@ The addon is fully client-side and relies on Garry's Mod hooks:
 5. **Localization**
    - All visible UI text is loaded from `always_run_localization.lua` based on `gmod_language`.
    - Missing translation keys fall back to English phrases.
+   - The movement description inserts the player's current `+speed` and `+walk` keys dynamically.
 
 ## Contributing
 Contributions are welcome! If you'd like to add new features, fix bugs, or improve translations, feel free to submit a pull request.
-
-### Local smoke checks
-Before opening a PR, run:
-
-```bash
-./scripts/smoke.sh
-```
-
-This script verifies:
-- no legacy global UI references (`_G.AlwaysRunMainCheckbox` / `_G.AlwaysRunKeyButton`);
-- Lua syntax is valid for client scripts.
 
 ## License
 This addon is provided as-is. Feel free to modify and distribute it, but please give credit to the original author.
 
 ## Credits
 - **Author**: [Web_Artur](https://steamcommunity.com/profiles/76561198115550963)
-- **Last Updated**: 12 May 2025
+- **Last Updated**: 25 April 2026
