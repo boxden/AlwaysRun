@@ -2,7 +2,7 @@ local ENABLED_CONVAR_NAME = "web_always_run_cl_enabled"
 local SET_KEY_COMMAND = "web_always_run_set_key"
 local SAVE_FILE_PATH = "web_always_run_settings.txt"
 local TOOL_TAB_NAME = "Utilities"
-local TOOL_CATEGORY_NAME = "Server"
+local TOOL_CATEGORY_NAME = "web_always_run_server"
 local TOOL_CLASS_NAME = "web_always_run_settings"
 
 local alwaysRunEnabled = CreateClientConVar(ENABLED_CONVAR_NAME, "1", true, false, "Internal client toggle state for the Always Run addon")
@@ -18,6 +18,7 @@ local isCapturingKey = false
 local KEY_MIN, KEY_MAX = 1, 159
 local keyButton
 local mainCheckbox
+local descriptionHelpLabel
 local keyboardIcon = Material("icon16/keyboard.png")
 local githubIcon = Material("icon32/github.png")
 
@@ -38,8 +39,8 @@ end
 local function SerializeAlwaysRunSettings(data)
     local lines = {
         "{",
-        "  \"version\": " .. tostring(data.version or SETTINGS_VERSION) .. ",",
-        "  \"profiles\": {"
+        "\t\"version\": " .. tostring(data.version or SETTINGS_VERSION) .. ",",
+        "\t\"profiles\": {"
     }
 
     local profileNames = {}
@@ -50,15 +51,15 @@ local function SerializeAlwaysRunSettings(data)
 
     for index, profileName in ipairs(profileNames) do
         local profile = data.profiles[profileName] or {}
-        lines[#lines + 1] = "    \"" .. EscapeJSONString(profileName) .. "\": {"
-        lines[#lines + 1] = "      \"toggled\": " .. tostring(profile.toggled ~= false) .. ","
-        lines[#lines + 1] = "      \"toggle_key\": " .. tostring(tonumber(profile.toggle_key) or DEFAULT_TOGGLE_KEY) .. ","
-        lines[#lines + 1] = "      \"mute_sound\": " .. tostring(profile.mute_sound ~= false) .. ","
-        lines[#lines + 1] = "      \"custom_key_enabled\": " .. tostring(profile.custom_key_enabled == true)
-        lines[#lines + 1] = "    }" .. (index < #profileNames and "," or "")
+        lines[#lines + 1] = "\t\t\"" .. EscapeJSONString(profileName) .. "\": {"
+        lines[#lines + 1] = "\t\t\t\"toggled\": " .. tostring(profile.toggled ~= false) .. ","
+        lines[#lines + 1] = "\t\t\t\"toggle_key\": " .. tostring(tonumber(profile.toggle_key) or DEFAULT_TOGGLE_KEY) .. ","
+        lines[#lines + 1] = "\t\t\t\"mute_sound\": " .. tostring(profile.mute_sound ~= false) .. ","
+        lines[#lines + 1] = "\t\t\t\"custom_key_enabled\": " .. tostring(profile.custom_key_enabled == true)
+        lines[#lines + 1] = "\t\t}" .. (index < #profileNames and "," or "")
     end
 
-    lines[#lines + 1] = "  }"
+    lines[#lines + 1] = "\t}"
     lines[#lines + 1] = "}"
 
     return table.concat(lines, "\n")
@@ -100,14 +101,27 @@ local function PlayToggleSound(isEnabled)
     end)
 end
 
-local function IsSpeedModifierPressed()
-    if input.IsKeyDown(KEY_LSHIFT) or input.IsKeyDown(KEY_RSHIFT) then
-        return true
+local function GetBoundKeyCode(command)
+    local bindName = input.LookupBinding(command, true)
+    if not bindName then
+        return nil
     end
-    local speedBind = input.LookupBinding("+speed", true)
-    if not speedBind then return false end
-    local speedCode = input.GetKeyCode(speedBind)
-    return speedCode and speedCode > 0 and input.IsKeyDown(speedCode) or false
+
+    local keyCode = input.GetKeyCode(bindName)
+    if not keyCode or keyCode <= 0 then
+        return nil
+    end
+
+    return keyCode
+end
+
+local function IsBoundCommandPressed(command)
+    local keyCode = GetBoundKeyCode(command)
+    return keyCode and input.IsKeyDown(keyCode) or false
+end
+
+local function IsMovementModifierPressed()
+    return IsBoundCommandPressed("+speed") or IsBoundCommandPressed("+walk")
 end
 
 local function ShouldBypassAlwaysRun(player)
@@ -163,6 +177,62 @@ end
 local function GetLocalizedPhrase(key)
     local lang = GetConVar("gmod_language"):GetString()
     return (localization[lang] and localization[lang][key]) or localization["en"][key]
+end
+
+local function GetPrettyKeyName(keyCode, fallback)
+    local keyName = input.GetKeyName(keyCode or 0)
+    if not keyName or keyName == "" then
+        return fallback
+    end
+
+    keyName = tostring(keyName)
+    if #keyName == 1 then
+        return string.upper(keyName)
+    end
+
+    return string.upper(string.sub(keyName, 1, 1)) .. string.lower(string.sub(keyName, 2))
+end
+
+local function GetMovementModifierDisplayName(primaryCommand, secondaryCommand, fallback)
+    local primaryKeyCode = GetBoundKeyCode(primaryCommand)
+    if primaryKeyCode then
+        return GetPrettyKeyName(primaryKeyCode, fallback)
+    end
+
+    local secondaryKeyCode = GetBoundKeyCode(secondaryCommand)
+    if secondaryKeyCode then
+        return GetPrettyKeyName(secondaryKeyCode, fallback)
+    end
+
+    return fallback
+end
+
+local function GetAlwaysRunDescription()
+    local template = GetLocalizedPhrase("always_run_description")
+    local speedKey = GetMovementModifierDisplayName("+speed", "+walk", "SHIFT")
+    local walkKey = GetMovementModifierDisplayName("+walk", "+speed", "ALT")
+
+    template = string.gsub(template, "{speed_key}", speedKey)
+    template = string.gsub(template, "{walk_key}", walkKey)
+
+    return template
+end
+
+local function CloseSpawnMenuForKeyCapture()
+    RunConsoleCommand("-menu")
+
+    if g_SpawnMenu and g_SpawnMenu.IsValid and g_SpawnMenu:IsValid() then
+        g_SpawnMenu:Close()
+        g_SpawnMenu:SetVisible(false)
+    end
+
+    if g_ContextMenu and g_ContextMenu.IsValid and g_ContextMenu:IsValid() then
+        g_ContextMenu:Close()
+        g_ContextMenu:SetVisible(false)
+    end
+
+    hook.Run("OnSpawnMenuClose")
+    gui.EnableScreenClicker(false)
 end
 
 local function SaveAlwaysRunSettings()
@@ -231,7 +301,7 @@ hook.Add("CreateMove", "web_AlwaysRun", function(cmd)
         -- Do not alter +speed for noclip/observer/ladder and ragdoll-like move states.
         return
     end
-    if input.IsKeyDown(KEY_LALT) or input.IsKeyDown(KEY_RALT) or IsSpeedModifierPressed() then
+    if IsMovementModifierPressed() then
         cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
     else
         cmd:SetButtons(bit.bor(cmd:GetButtons(), IN_SPEED))
@@ -249,12 +319,13 @@ local function RebuildPanel(panel)
     end
     mainCheckbox = checkbox
 
-    panel:Help(GetLocalizedPhrase("always_run_description"))
-    panel:Help(GetLocalizedPhrase("always_run_capslock_hint"))
+    descriptionHelpLabel = panel:Help(GetAlwaysRunDescription())
 
     local customKeyCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_custom_key_enable"))
     customKeyCheckbox:SetValue(alwaysRunCustomKeyEnabled)
     customKeyCheckbox:DockMargin(0, 8, 0, 0)
+    local customKeyAssignHint = panel:Help(GetLocalizedPhrase("always_run_capslock_hint"))
+    customKeyAssignHint:SetVisible(alwaysRunCustomKeyEnabled)
     local customKeyDescription = panel:Help(GetLocalizedPhrase("always_run_custom_key_description"))
     customKeyDescription:SetVisible(alwaysRunCustomKeyEnabled)
     local customKeyCancelHint = panel:Help(GetLocalizedPhrase("always_run_key_cancel_hint"))
@@ -318,6 +389,10 @@ local function RebuildPanel(panel)
     panel:AddItem(githubButton)
 end
 
+hook.Add("AddToolMenuCategories", "web_AlwaysRunCategory", function()
+    spawnmenu.AddToolCategory(TOOL_TAB_NAME, TOOL_CATEGORY_NAME, GetLocalizedPhrase("utilities_server"))
+end)
+
 hook.Add("PopulateToolMenu", "web_AlwaysRunSettings", function()
     LoadAlwaysRunSettings()
     spawnmenu.AddToolMenuOption(TOOL_TAB_NAME, TOOL_CATEGORY_NAME, TOOL_CLASS_NAME, GetLocalizedPhrase("always_run_menu"), "", "", function(panel)
@@ -331,6 +406,15 @@ timer.Create("web_AlwaysRunSyncCheckbox", 0.1, 0, function()
     if mainCheckbox and mainCheckbox:IsValid() then
         if mainCheckbox:GetChecked() ~= alwaysRunToggled then
             mainCheckbox:SetChecked(alwaysRunToggled)
+        end
+    end
+
+    if descriptionHelpLabel and descriptionHelpLabel:IsValid() then
+        local expectedText = GetAlwaysRunDescription()
+        if descriptionHelpLabel:GetText() ~= expectedText then
+            descriptionHelpLabel:SetText(expectedText)
+            descriptionHelpLabel:SizeToContentsY()
+            descriptionHelpLabel:InvalidateLayout(true)
         end
     end
 end)
@@ -375,8 +459,7 @@ concommand.Add(SET_KEY_COMMAND, function()
     timer.Simple(0, function()
         if not isCapturingKey then return end
 
-        RunConsoleCommand("-menu")
-        gui.EnableScreenClicker(false)
+        CloseSpawnMenuForKeyCapture()
         chat.AddText(Color(255,255,0), GetLocalizedPhrase("always_run_press_key_hint"))
         input.StartKeyTrapping()
 
