@@ -18,7 +18,9 @@ return {
         always_run_select_key_hint = "Click to select a new key for always run",
         always_run_custom_key_enable = "Enable custom toggle key",
         always_run_custom_key_description = "Use an unbound key for toggle to avoid conflicts with existing actions.",
-        always_run_key_cancelled = "Key assignment cancelled."
+        always_run_key_cancel_hint = "Press ESC to cancel key assignment.",
+        always_run_key_cancelled = "Key assignment cancelled.",
+        always_run_key_forbidden = "This key is already used or reserved. Pick another key."
     },
     fr = {
         always_run_enabled = "Activer la course automatique",
@@ -58,7 +60,9 @@ return {
         always_run_select_key_hint = "Нажмите, чтобы выбрать новую клавишу для автобега",
         always_run_custom_key_enable = "Включить пользовательскую клавишу",
         always_run_custom_key_description = "Используйте свободную клавишу без назначения, чтобы избежать конфликтов с действиями.",
-        always_run_key_cancelled = "Назначение клавиши отменено."
+        always_run_key_cancel_hint = "Нажмите ESC, чтобы отменить назначение клавиши.",
+        always_run_key_cancelled = "Назначение клавиши отменено.",
+        always_run_key_forbidden = "Эта клавиша уже занята или зарезервирована. Выберите другую."
     },
     es = {
         always_run_enabled = "Habilitar carrera automática",

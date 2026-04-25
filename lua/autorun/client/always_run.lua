@@ -1,6 +1,12 @@
-local alwaysRunEnabled = CreateConVar("always_run_enabled", "1", {FCVAR_REPLICATED}, "Enable or disable always run")
+local ENABLED_CONVAR_NAME = "web_always_run_cl_enabled"
+local SET_KEY_COMMAND = "web_always_run_set_key"
+local SAVE_FILE_PATH = "web_always_run_settings.txt"
+local TOOL_TAB_NAME = "Utilities"
+local TOOL_CATEGORY_NAME = "Server"
+local TOOL_CLASS_NAME = "web_always_run_settings"
+
+local alwaysRunEnabled = CreateClientConVar(ENABLED_CONVAR_NAME, "1", true, false, "Internal client toggle state for the Always Run addon")
 local localization = include("always_run_localization.lua")
-local saveFilePath = "always_run_settings.txt"
 local SETTINGS_VERSION = 2
 local DEFAULT_TOGGLE_KEY = KEY_CAPSLOCK
 local TOGGLE_KEY = DEFAULT_TOGGLE_KEY
@@ -14,6 +20,10 @@ local keyButton
 local mainCheckbox
 local keyboardIcon = Material("icon16/keyboard.png")
 local githubIcon = Material("icon32/github.png")
+
+local function SyncEnabledConVar()
+    RunConsoleCommand(ENABLED_CONVAR_NAME, alwaysRunToggled and "1" or "0")
+end
 
 local function GetCurrentProfileKey()
     if engine and engine.ActiveGamemode then
@@ -118,7 +128,7 @@ end
 
 local function SaveAlwaysRunSettings()
     local profileKey = GetCurrentProfileKey()
-    local data = util.JSONToTable(file.Read(saveFilePath, "DATA") or "") or {}
+    local data = util.JSONToTable(file.Read(SAVE_FILE_PATH, "DATA") or "") or {}
     data.version = SETTINGS_VERSION
     data.profiles = data.profiles or {}
     data.profiles[profileKey] = {
@@ -127,14 +137,14 @@ local function SaveAlwaysRunSettings()
         mute_sound = alwaysRunMuteSound,
         custom_key_enabled = alwaysRunCustomKeyEnabled
     }
-    file.Write(saveFilePath, util.TableToJSON(data, true))
+    file.Write(SAVE_FILE_PATH, util.TableToJSON(data, true))
 end
 
 local function LoadAlwaysRunSettings()
     local profileKey = GetCurrentProfileKey()
     local defaultProfile = BuildDefaultProfile()
-    if file.Exists(saveFilePath, "DATA") then
-        local raw = file.Read(saveFilePath, "DATA") or ""
+    if file.Exists(SAVE_FILE_PATH, "DATA") then
+        local raw = file.Read(SAVE_FILE_PATH, "DATA") or ""
         local parsed = util.JSONToTable(raw)
         if parsed and parsed.profiles then
             local profile = parsed.profiles[profileKey] or parsed.profiles["global"] or defaultProfile
@@ -157,24 +167,24 @@ local function LoadAlwaysRunSettings()
         alwaysRunCustomKeyEnabled = defaultProfile.custom_key_enabled
         SaveAlwaysRunSettings()
     end
-    RunConsoleCommand("always_run_enabled", alwaysRunToggled and "1" or "0")
+    SyncEnabledConVar()
     lastToggleKeyState = input.IsKeyDown(TOGGLE_KEY)
 end
 
-hook.Add("Think", "AlwaysRunToggleKey", function()
+hook.Add("Think", "web_AlwaysRunToggleKey", function()
     if isCapturingKey then return end
     if not alwaysRunCustomKeyEnabled then lastToggleKeyState = false return end
     local keyDown = input.IsKeyDown(TOGGLE_KEY)
     if keyDown and not lastToggleKeyState then
         alwaysRunToggled = not alwaysRunToggled
-        RunConsoleCommand("always_run_enabled", alwaysRunToggled and "1" or "0")
+        SyncEnabledConVar()
         SaveAlwaysRunSettings()
         PlayToggleSound(alwaysRunToggled)
     end
     lastToggleKeyState = keyDown
 end)
 
-hook.Add("CreateMove", "AlwaysRun", function(cmd)
+hook.Add("CreateMove", "web_AlwaysRun", function(cmd)
     if not alwaysRunToggled then return end
     local player = LocalPlayer()
     if not IsValid(player) then return end
@@ -195,7 +205,7 @@ local function RebuildPanel(panel)
     checkbox:SetValue(alwaysRunToggled)
     checkbox.OnChange = function(_, value)
         alwaysRunToggled = value
-        RunConsoleCommand("always_run_enabled", value and "1" or "0")
+        SyncEnabledConVar()
         SaveAlwaysRunSettings()
     end
     mainCheckbox = checkbox
@@ -208,6 +218,8 @@ local function RebuildPanel(panel)
     customKeyCheckbox:DockMargin(0, 8, 0, 0)
     local customKeyDescription = panel:Help(GetLocalizedPhrase("always_run_custom_key_description"))
     customKeyDescription:SetVisible(alwaysRunCustomKeyEnabled)
+    local customKeyCancelHint = panel:Help(GetLocalizedPhrase("always_run_key_cancel_hint"))
+    customKeyCancelHint:SetVisible(alwaysRunCustomKeyEnabled)
 
     if keyButton then keyButton:Remove() end
     keyButton = vgui.Create("DButton")
@@ -222,7 +234,7 @@ local function RebuildPanel(panel)
             draw.RoundedBox(6, 0, 0, w, h, Color(56, 61, 66, 180))
         end
     end
-    keyButton.DoClick = function() RunConsoleCommand("always_run_set_key") end
+    keyButton.DoClick = function() RunConsoleCommand(SET_KEY_COMMAND) end
     keyButton:SetToolTip(GetLocalizedPhrase("always_run_select_key_hint"))
     keyButton.PaintOver = function(self, w, h)
         surface.SetDrawColor(255,255,255,255)
@@ -267,16 +279,16 @@ local function RebuildPanel(panel)
     panel:AddItem(githubButton)
 end
 
-hook.Add("PopulateToolMenu", "AlwaysRunSettings", function()
+hook.Add("PopulateToolMenu", "web_AlwaysRunSettings", function()
     LoadAlwaysRunSettings()
-    spawnmenu.AddToolMenuOption("Utilities", GetLocalizedPhrase("utilities_server"), "AlwaysRunSettings", GetLocalizedPhrase("always_run_menu"), "", "", function(panel)
+    spawnmenu.AddToolMenuOption(TOOL_TAB_NAME, TOOL_CATEGORY_NAME, TOOL_CLASS_NAME, GetLocalizedPhrase("always_run_menu"), "", "", function(panel)
         RebuildPanel(panel)
     end)
 end)
 
-if timer.Exists("AlwaysRunSyncCheckbox") then timer.Remove("AlwaysRunSyncCheckbox") end
+if timer.Exists("web_AlwaysRunSyncCheckbox") then timer.Remove("web_AlwaysRunSyncCheckbox") end
 
-timer.Create("AlwaysRunSyncCheckbox", 0.1, 0, function()
+timer.Create("web_AlwaysRunSyncCheckbox", 0.1, 0, function()
     if mainCheckbox and mainCheckbox:IsValid() then
         if mainCheckbox:GetChecked() ~= alwaysRunToggled then
             mainCheckbox:SetChecked(alwaysRunToggled)
@@ -284,55 +296,62 @@ timer.Create("AlwaysRunSyncCheckbox", 0.1, 0, function()
     end
 end)
 
-concommand.Add("always_run_set_key", function()
+local function FinishKeyCapture(newKey)
+    isCapturingKey = false
+    hook.Remove("Think", "web_AlwaysRunKeyCapture")
+
+    if newKey == KEY_ESCAPE then
+        if keyButton and keyButton:IsValid() and keyButton.SetText then
+            keyButton:SetText(GetLocalizedPhrase("always_run_key") .. GetKeyDisplayName(TOGGLE_KEY))
+        end
+        chat.AddText(Color(255,100,100), GetLocalizedPhrase("always_run_key_cancelled"))
+        return
+    end
+
+    local forbidden = GetForbiddenKeys()
+    if forbidden[newKey] then
+        if keyButton and keyButton:IsValid() and keyButton.SetText then
+            keyButton:SetText(GetLocalizedPhrase("always_run_key") .. GetKeyDisplayName(TOGGLE_KEY))
+        end
+        chat.AddText(Color(255,100,100), GetLocalizedPhrase("always_run_key_forbidden"))
+        return
+    end
+
+    TOGGLE_KEY = newKey
+    SaveAlwaysRunSettings()
+    chat.AddText(Color(0,255,0), GetLocalizedPhrase("always_run_key_selected") .. GetKeyDisplayName(newKey))
+    if keyButton and keyButton:IsValid() and keyButton.SetText then
+        keyButton:SetText(GetLocalizedPhrase("always_run_key") .. GetKeyDisplayName(newKey))
+    end
+    lastToggleKeyState = input.IsKeyDown(TOGGLE_KEY)
+end
+
+concommand.Add(SET_KEY_COMMAND, function()
     if keyButton and keyButton:IsValid() and keyButton.SetText then
         keyButton:SetText(GetLocalizedPhrase("always_run_key") .. "...")
     end
     chat.AddText(Color(255,255,0), GetLocalizedPhrase("always_run_press_key_hint"))
-    local pressed = {}
-    for i = KEY_MIN, KEY_MAX do if input.IsKeyDown(i) then pressed[i] = true end end
     isCapturingKey = true
+    input.StartKeyTrapping()
 
-    hook.Add("PreRender", "AlwaysRunBlockEscMenu", function()
-        if isCapturingKey and input.IsKeyDown(KEY_ESCAPE) then
-            gui.HideGameUI()
-        end
-    end)
-
-    hook.Add("Think", "AlwaysRunKeyCapture", function()
-        if input.IsKeyDown(KEY_ESCAPE) then
-            if keyButton and keyButton:IsValid() and keyButton.SetText then
-                keyButton:SetText(GetLocalizedPhrase("always_run_key") .. GetKeyDisplayName(TOGGLE_KEY))
-            end
-            chat.AddText(Color(255,100,100), GetLocalizedPhrase("always_run_key_cancelled"))
-            isCapturingKey = false
-            hook.Remove("Think", "AlwaysRunKeyCapture")
-            hook.Remove("PreRender", "AlwaysRunBlockEscMenu")
-            return
-        end
-        local forbidden = GetForbiddenKeys()
-        for i = KEY_MIN, KEY_MAX do
-            if input.IsKeyDown(i) and not pressed[i] and not forbidden[i] then
-                TOGGLE_KEY = i
-                SaveAlwaysRunSettings()
-                chat.AddText(Color(0,255,0), GetLocalizedPhrase("always_run_key_selected") .. GetKeyDisplayName(i))
-                if keyButton and keyButton:IsValid() and keyButton.SetText then
-                    keyButton:SetText(GetLocalizedPhrase("always_run_key") .. GetKeyDisplayName(i))
-                end
-                isCapturingKey = false
-                lastToggleKeyState = input.IsKeyDown(TOGGLE_KEY)
-                hook.Remove("Think", "AlwaysRunKeyCapture")
-                hook.Remove("PreRender", "AlwaysRunBlockEscMenu")
-                return
-            end
+    hook.Add("Think", "web_AlwaysRunKeyCapture", function()
+        local trappedKey = input.CheckKeyTrapping()
+        if trappedKey and trappedKey >= KEY_MIN and trappedKey <= KEY_MAX then
+            FinishKeyCapture(trappedKey)
+        elseif trappedKey == KEY_ESCAPE then
+            FinishKeyCapture(KEY_ESCAPE)
         end
     end)
 end)
 
-hook.Add("Initialize", "AlwaysRunLoadSettings", LoadAlwaysRunSettings)
-hook.Add("InitPostEntity", "AlwaysRunLoadSettingsPost", LoadAlwaysRunSettings)
-hook.Add("OnGamemodeLoaded", "AlwaysRunEnsureConVar", function()
-    local savedValue = GetConVar("always_run_enabled"):GetString()
-    RunConsoleCommand("always_run_enabled", savedValue)
+hook.Add("Initialize", "web_AlwaysRunLoadSettings", LoadAlwaysRunSettings)
+hook.Add("InitPostEntity", "web_AlwaysRunLoadSettingsPost", LoadAlwaysRunSettings)
+hook.Add("OnGamemodeLoaded", "web_AlwaysRunEnsureConVar", function()
+    local savedValue = GetConVar(ENABLED_CONVAR_NAME):GetString()
+    RunConsoleCommand(ENABLED_CONVAR_NAME, savedValue)
     alwaysRunToggled = alwaysRunEnabled:GetBool()
 end)
+
+cvars.AddChangeCallback(ENABLED_CONVAR_NAME, function(_, _, newValue)
+    alwaysRunToggled = tonumber(newValue) == 1
+end, "web_AlwaysRunEnabledSync")
