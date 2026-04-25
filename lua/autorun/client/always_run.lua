@@ -2,7 +2,7 @@ local ENABLED_CONVAR_NAME = "web_always_run_cl_enabled"
 local SET_KEY_COMMAND = "web_always_run_set_key"
 local SAVE_FILE_PATH = "web_always_run_settings.txt"
 local TOOL_TAB_NAME = "Utilities"
-local TOOL_CATEGORY_NAME = "web_always_run_server"
+local TOOL_CATEGORY_NAME = "User"
 local TOOL_CLASS_NAME = "web_always_run_settings"
 
 local alwaysRunEnabled = CreateClientConVar(ENABLED_CONVAR_NAME, "1", true, false, "Internal client toggle state for the Always Run addon")
@@ -388,10 +388,6 @@ local function RebuildPanel(panel)
     end
     panel:AddItem(githubButton)
 end
-
-hook.Add("AddToolMenuCategories", "web_AlwaysRunCategory", function()
-    spawnmenu.AddToolCategory(TOOL_TAB_NAME, TOOL_CATEGORY_NAME, GetLocalizedPhrase("utilities_server"))
-end)
 
 hook.Add("PopulateToolMenu", "web_AlwaysRunSettings", function()
     LoadAlwaysRunSettings()
