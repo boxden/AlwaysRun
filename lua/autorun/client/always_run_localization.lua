@@ -6,7 +6,6 @@ This file contains localization strings for the Always Run addon in various lang
 return {
     en = {
         always_run_enabled = "Enable Always Run",
-        utilities_server = "Server",
         always_run_menu = "Always Run",
         always_run_description = "When enabled, your character will always run unless you hold {speed_key} or {walk_key}.",
         always_run_capslock_hint = "Assign any key to toggle always run.",
@@ -24,7 +23,6 @@ return {
     },
     fr = {
         always_run_enabled = "Activer la course automatique",
-        utilities_server = "Serveur",
         always_run_menu = "Course automatique",
         always_run_description = "Lorsque cette option est activée, votre personnage court en permanence sauf si vous maintenez {speed_key} ou {walk_key}.",
         always_run_capslock_hint = "Attribuez une touche pour activer ou désactiver la course automatique.",
@@ -42,7 +40,6 @@ return {
     },
     de = {
         always_run_enabled = "Automatisches Laufen aktivieren",
-        utilities_server = "Server",
         always_run_menu = "Automatisches Laufen",
         always_run_description = "Wenn dies aktiviert ist, rennt dein Charakter immer, außer wenn du {speed_key} oder {walk_key} gedrückt hältst.",
         always_run_capslock_hint = "Weise eine beliebige Taste zum Umschalten des automatischen Laufens zu.",
@@ -60,7 +57,6 @@ return {
     },
     ru = {
         always_run_enabled = "Включить постоянный бег",
-        utilities_server = "Сервер",
         always_run_menu = "Постоянный бег",
         always_run_description = "Когда включено, ваш персонаж всегда будет бежать, если вы не удерживаете {speed_key} или {walk_key}.",
         always_run_capslock_hint = "Назначьте любую клавишу для переключения автобега.",
@@ -78,7 +74,6 @@ return {
     },
     es = {
         always_run_enabled = "Activar carrera automática",
-        utilities_server = "Servidor",
         always_run_menu = "Carrera automática",
         always_run_description = "Cuando está activado, tu personaje correrá siempre salvo que mantengas {speed_key} o {walk_key}.",
         always_run_capslock_hint = "Asigna cualquier tecla para alternar la carrera automática.",
@@ -96,7 +91,6 @@ return {
     },
     zh_CN = {
         always_run_enabled = "启用自动奔跑",
-        utilities_server = "服务器",
         always_run_menu = "自动奔跑",
         always_run_description = "启用后，除非您按住 {speed_key} 或 {walk_key}，否则角色会一直奔跑。",
         always_run_capslock_hint = "可分配任意按键来切换自动奔跑。",
@@ -114,7 +108,6 @@ return {
     },
     zh_TW = {
         always_run_enabled = "啟用自動奔跑",
-        utilities_server = "伺服器",
         always_run_menu = "自動奔跑",
         always_run_description = "啟用後，除非您按住 {speed_key} 或 {walk_key}，否則角色會持續奔跑。",
         always_run_capslock_hint = "可指派任意按鍵來切換自動奔跑。",
@@ -132,7 +125,6 @@ return {
     },
     ko = {
         always_run_enabled = "자동 달리기 활성화",
-        utilities_server = "서버",
         always_run_menu = "자동 달리기",
         always_run_description = "활성화되면 {speed_key} 또는 {walk_key}를 누르고 있을 때를 제외하고 캐릭터가 항상 달립니다.",
         always_run_capslock_hint = "아무 키나 지정해 자동 달리기를 전환하세요.",
@@ -150,7 +142,6 @@ return {
     },
     ja = {
         always_run_enabled = "常時走るを有効にする",
-        utilities_server = "サーバー",
         always_run_menu = "常時走る",
         always_run_description = "有効にすると、{speed_key} または {walk_key} を押しているときを除き、キャラクターは常に走ります。",
         always_run_capslock_hint = "常時走るを切り替えるキーを割り当ててください。",
@@ -168,7 +159,6 @@ return {
     },
     pl = {
         always_run_enabled = "Włącz automatyczny bieg",
-        utilities_server = "Serwer",
         always_run_menu = "Automatyczny bieg",
         always_run_description = "Po włączeniu twoja postać będzie stale biegać, chyba że przytrzymasz {speed_key} lub {walk_key}.",
         always_run_capslock_hint = "Przypisz dowolny klawisz do przełączania automatycznego biegu.",
@@ -186,7 +176,6 @@ return {
     },
     pt = {
         always_run_enabled = "Ativar corrida automática",
-        utilities_server = "Servidor",
         always_run_menu = "Corrida automática",
         always_run_description = "Quando ativado, seu personagem correrá sempre, a menos que você segure {speed_key} ou {walk_key}.",
         always_run_capslock_hint = "Atribua qualquer tecla para alternar a corrida automática.",
@@ -204,7 +193,6 @@ return {
     },
     tr = {
         always_run_enabled = "Sürekli Koşmayı Etkinleştir",
-        utilities_server = "Sunucu",
         always_run_menu = "Sürekli Koşma",
         always_run_description = "Etkinleştirildiğinde, {speed_key} veya {walk_key} basılı değilse karakteriniz sürekli koşar.",
         always_run_capslock_hint = "Sürekli koşmayı açıp kapatmak için herhangi bir tuş atayın.",
@@ -222,7 +210,6 @@ return {
     },
     da = {
         always_run_enabled = "Aktiver altid løb",
-        utilities_server = "Server",
         always_run_menu = "Altid løb",
         always_run_description = "Når dette er aktiveret, løber din figur altid, medmindre du holder {speed_key} eller {walk_key} nede.",
         always_run_capslock_hint = "Tildel en vilkårlig tast til at skifte altid løb.",
@@ -240,7 +227,6 @@ return {
     },
     nl = {
         always_run_enabled = "Altijd rennen inschakelen",
-        utilities_server = "Server",
         always_run_menu = "Altijd rennen",
         always_run_description = "Wanneer ingeschakeld rent je personage altijd, tenzij je {speed_key} of {walk_key} ingedrukt houdt.",
         always_run_capslock_hint = "Wijs een toets toe om altijd rennen te schakelen.",
@@ -258,7 +244,6 @@ return {
     },
     no = {
         always_run_enabled = "Aktiver alltid løping",
-        utilities_server = "Server",
         always_run_menu = "Alltid løping",
         always_run_description = "Når dette er aktivert, vil figuren din alltid løpe med mindre du holder {speed_key} eller {walk_key} inne.",
         always_run_capslock_hint = "Tildel en tast for å veksle alltid løping.",
@@ -276,7 +261,6 @@ return {
     },
     fi = {
         always_run_enabled = "Ota jatkuva juoksu käyttöön",
-        utilities_server = "Palvelin",
         always_run_menu = "Jatkuva juoksu",
         always_run_description = "Kun tämä on käytössä, hahmosi juoksee aina, ellet pidä {speed_key}- tai {walk_key}-näppäintä painettuna.",
         always_run_capslock_hint = "Aseta mikä tahansa näppäin jatkuvan juoksun vaihtamiseen.",
@@ -294,7 +278,6 @@ return {
     },
     sv = {
         always_run_enabled = "Aktivera alltid spring",
-        utilities_server = "Server",
         always_run_menu = "Alltid spring",
         always_run_description = "När detta är aktiverat kommer din karaktär alltid att springa om du inte håller {speed_key} eller {walk_key} nedtryckt.",
         always_run_capslock_hint = "Tilldela valfri tangent för att växla alltid spring.",
@@ -312,7 +295,6 @@ return {
     },
     cs = {
         always_run_enabled = "Povolit automatický běh",
-        utilities_server = "Server",
         always_run_menu = "Automatický běh",
         always_run_description = "Když je tato možnost povolena, vaše postava bude vždy běžet, pokud nedržíte {speed_key} nebo {walk_key}.",
         always_run_capslock_hint = "Přiřaďte libovolnou klávesu pro přepínání automatického běhu.",
@@ -330,7 +312,6 @@ return {
     },
     hu = {
         always_run_enabled = "Automatikus futás engedélyezése",
-        utilities_server = "Szerver",
         always_run_menu = "Automatikus futás",
         always_run_description = "Ha ez engedélyezve van, a karaktered mindig futni fog, hacsak nem tartod lenyomva a {speed_key} vagy a {walk_key} billentyűt.",
         always_run_capslock_hint = "Rendelj hozzá egy billentyűt az automatikus futás kapcsolásához.",
@@ -348,7 +329,6 @@ return {
     },
     it = {
         always_run_enabled = "Abilita corsa automatica",
-        utilities_server = "Server",
         always_run_menu = "Corsa automatica",
         always_run_description = "Quando è attivato, il tuo personaggio correrà sempre a meno che tu non tenga premuto {speed_key} o {walk_key}.",
         always_run_capslock_hint = "Assegna un tasto qualsiasi per attivare o disattivare la corsa automatica.",
@@ -366,7 +346,6 @@ return {
     },
     uk = {
         always_run_enabled = "Увімкнути постійний біг",
-        utilities_server = "Сервер",
         always_run_menu = "Постійний біг",
         always_run_description = "Коли ввімкнено, ваш персонаж завжди бігтиме, якщо ви не утримуєте {speed_key} або {walk_key}.",
         always_run_capslock_hint = "Призначте будь-яку клавішу для перемикання автобігу.",
@@ -384,7 +363,6 @@ return {
     },
     th = {
         always_run_enabled = "เปิดใช้งานการวิ่งอัตโนมัติ",
-        utilities_server = "เซิร์ฟเวอร์",
         always_run_menu = "การวิ่งอัตโนมัติ",
         always_run_description = "เมื่อเปิดใช้งาน ตัวละครของคุณจะวิ่งตลอดเวลา ยกเว้นเมื่อกด {speed_key} หรือ {walk_key} ค้างไว้",
         always_run_capslock_hint = "กำหนดปุ่มใดก็ได้เพื่อสลับการวิ่งอัตโนมัติ",
