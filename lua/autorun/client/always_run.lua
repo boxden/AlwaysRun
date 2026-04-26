@@ -168,6 +168,7 @@ local function GetForbiddenKeys()
 
     local forbidden = {
         [MOUSE_MIDDLE] = true,
+        [KEY_RCONTROL] = true,
         [KEY_RSHIFT] = true
     }
 
