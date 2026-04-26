@@ -17,6 +17,8 @@ return {
         always_run_select_key_hint = "Click to select a new key for always run",
         always_run_custom_key_enable = "Custom toggle key",
         always_run_custom_key_description = "Use an unbound key for toggle to avoid conflicts with existing actions.",
+        always_run_protected_keys = "Protected keys",
+        always_run_protected_keys_description = "You can disable protected keys to assign the toggle to absolutely any key.",
         always_run_key_cancel_hint = "Press ESC to cancel key assignment.",
         always_run_key_cancelled = "Key assignment cancelled.",
         always_run_key_forbidden = "This key is already used or reserved. Pick another key."
@@ -34,6 +36,8 @@ return {
         always_run_select_key_hint = "Cliquez pour choisir une nouvelle touche pour la course automatique",
         always_run_custom_key_enable = "Touche de basculement personnalisée",
         always_run_custom_key_description = "Utilisez une touche non attribuée pour éviter les conflits avec les actions existantes.",
+        always_run_protected_keys = "Touches protégées",
+        always_run_protected_keys_description = "Vous pouvez désactiver la protection des touches assignées pour attribuer le basculement à absolument n'importe quelle touche.",
         always_run_key_cancel_hint = "Appuyez sur Échap pour annuler l’attribution de la touche.",
         always_run_key_cancelled = "Attribution de la touche annulée.",
         always_run_key_forbidden = "Cette touche est déjà utilisée ou réservée. Choisissez-en une autre."
@@ -51,6 +55,8 @@ return {
         always_run_select_key_hint = "Klicke, um eine neue Taste für automatisches Laufen auszuwählen",
         always_run_custom_key_enable = "Benutzerdefinierte Umschalttaste",
         always_run_custom_key_description = "Verwende eine unbelegte Taste, um Konflikte mit vorhandenen Aktionen zu vermeiden.",
+        always_run_protected_keys = "Geschützte Tasten",
+        always_run_protected_keys_description = "Du kannst den Schutz belegter Tasten deaktivieren, um das Umschalten auf wirklich jede Taste zu legen.",
         always_run_key_cancel_hint = "Drücke ESC, um die Tastenbelegung abzubrechen.",
         always_run_key_cancelled = "Tastenbelegung abgebrochen.",
         always_run_key_forbidden = "Diese Taste ist bereits belegt oder reserviert. Wähle eine andere Taste."
@@ -68,6 +74,8 @@ return {
         always_run_select_key_hint = "Нажмите, чтобы выбрать новую клавишу для автобега",
         always_run_custom_key_enable = "Пользовательская клавиша переключения",
         always_run_custom_key_description = "Используйте свободную клавишу без назначения, чтобы избежать конфликтов с действиями.",
+        always_run_protected_keys = "Защищенные клавиши",
+        always_run_protected_keys_description = "Вы можете отключить защиту назначенных клавиш, чтобы назначить переключение на абсолютно любую клавишу.",
         always_run_key_cancel_hint = "Нажмите ESC, чтобы отменить назначение клавиши.",
         always_run_key_cancelled = "Назначение клавиши отменено.",
         always_run_key_forbidden = "Эта клавиша уже занята или зарезервирована. Выберите другую."
@@ -85,6 +93,8 @@ return {
         always_run_select_key_hint = "Haz clic para elegir una nueva tecla para la carrera automática",
         always_run_custom_key_enable = "Tecla personalizada de cambio",
         always_run_custom_key_description = "Usa una tecla sin asignar para evitar conflictos con acciones existentes.",
+        always_run_protected_keys = "Teclas protegidas",
+        always_run_protected_keys_description = "Puedes desactivar la protección de teclas asignadas para asignar el cambio a absolutamente cualquier tecla.",
         always_run_key_cancel_hint = "Pulsa ESC para cancelar la asignación de la tecla.",
         always_run_key_cancelled = "Asignación de tecla cancelada.",
         always_run_key_forbidden = "Esta tecla ya está en uso o reservada. Elige otra."
@@ -102,6 +112,8 @@ return {
         always_run_select_key_hint = "点击以选择新的自动奔跑按键",
         always_run_custom_key_enable = "自定义切换按键",
         always_run_custom_key_description = "使用未绑定的按键可避免与现有操作冲突。",
+        always_run_protected_keys = "受保护按键",
+        always_run_protected_keys_description = "您可以禁用已分配按键保护，以便将切换分配到绝对任意按键。",
         always_run_key_cancel_hint = "按 ESC 取消按键分配。",
         always_run_key_cancelled = "按键分配已取消。",
         always_run_key_forbidden = "此按键已被使用或保留，请选择其他按键。"
@@ -119,6 +131,8 @@ return {
         always_run_select_key_hint = "點擊以選擇新的自動奔跑按鍵",
         always_run_custom_key_enable = "自訂切換按鍵",
         always_run_custom_key_description = "使用未綁定的按鍵可避免與現有操作衝突。",
+        always_run_protected_keys = "受保護按鍵",
+        always_run_protected_keys_description = "您可以停用已指派按鍵保護，將切換功能指定到任何按鍵。",
         always_run_key_cancel_hint = "按 ESC 取消按鍵指派。",
         always_run_key_cancelled = "按鍵指派已取消。",
         always_run_key_forbidden = "此按鍵已被使用或保留，請選擇其他按鍵。"
@@ -136,6 +150,8 @@ return {
         always_run_select_key_hint = "클릭하여 자동 달리기용 새 키를 선택하세요",
         always_run_custom_key_enable = "사용자 지정 전환 키",
         always_run_custom_key_description = "기존 동작과의 충돌을 피하려면 비어 있는 키를 사용하세요.",
+        always_run_protected_keys = "보호된 키",
+        always_run_protected_keys_description = "할당된 키 보호를 끄면 전환 키를 사실상 아무 키에나 지정할 수 있습니다.",
         always_run_key_cancel_hint = "키 지정을 취소하려면 ESC를 누르세요.",
         always_run_key_cancelled = "키 지정이 취소되었습니다.",
         always_run_key_forbidden = "이 키는 이미 사용 중이거나 예약되어 있습니다. 다른 키를 선택하세요."
@@ -153,6 +169,8 @@ return {
         always_run_select_key_hint = "クリックして常時走る用の新しいキーを選択",
         always_run_custom_key_enable = "カスタム切り替えキー",
         always_run_custom_key_description = "既存の操作との競合を避けるため、未割り当てのキーを使用してください。",
+        always_run_protected_keys = "保護されたキー",
+        always_run_protected_keys_description = "割り当て済みキーの保護を無効にすると、切り替えをほぼどんなキーにも割り当てられます。",
         always_run_key_cancel_hint = "キー割り当てをキャンセルするには ESC を押してください。",
         always_run_key_cancelled = "キーの割り当てがキャンセルされました。",
         always_run_key_forbidden = "このキーは既に使用中または予約済みです。別のキーを選んでください。"
@@ -170,6 +188,8 @@ return {
         always_run_select_key_hint = "Kliknij, aby wybrać nowy klawisz dla automatycznego biegu",
         always_run_custom_key_enable = "Własny klawisz przełączania",
         always_run_custom_key_description = "Użyj nieprzypisanego klawisza, aby uniknąć konfliktów z istniejącymi akcjami.",
+        always_run_protected_keys = "Chronione klawisze",
+        always_run_protected_keys_description = "Możesz wyłączyć ochronę przypisanych klawiszy, aby przypisać przełączanie do dowolnego klawisza.",
         always_run_key_cancel_hint = "Naciśnij ESC, aby anulować przypisywanie klawisza.",
         always_run_key_cancelled = "Przypisanie klawisza anulowane.",
         always_run_key_forbidden = "Ten klawisz jest już używany lub zarezerwowany. Wybierz inny."
@@ -187,6 +207,8 @@ return {
         always_run_select_key_hint = "Clique para selecionar uma nova tecla para corrida automática",
         always_run_custom_key_enable = "Tecla personalizada de alternância",
         always_run_custom_key_description = "Use uma tecla sem atribuição para evitar conflitos com ações existentes.",
+        always_run_protected_keys = "Teclas protegidas",
+        always_run_protected_keys_description = "Você pode desativar a proteção das teclas atribuídas para definir a alternância em absolutamente qualquer tecla.",
         always_run_key_cancel_hint = "Pressione ESC para cancelar a atribuição da tecla.",
         always_run_key_cancelled = "Atribuição de tecla cancelada.",
         always_run_key_forbidden = "Esta tecla já está em uso ou reservada. Escolha outra."
@@ -204,6 +226,8 @@ return {
         always_run_select_key_hint = "Sürekli koşma için yeni bir tuş seçmek üzere tıklayın",
         always_run_custom_key_enable = "Özel geçiş tuşu",
         always_run_custom_key_description = "Mevcut eylemlerle çakışmayı önlemek için atanmamış bir tuş kullanın.",
+        always_run_protected_keys = "Korumalı tuşlar",
+        always_run_protected_keys_description = "Atanmış tuş korumasını kapatarak geçişi istediğiniz herhangi bir tuşa atayabilirsiniz.",
         always_run_key_cancel_hint = "Tuş atamasını iptal etmek için ESC tuşuna basın.",
         always_run_key_cancelled = "Tuş ataması iptal edildi.",
         always_run_key_forbidden = "Bu tuş zaten kullanılıyor veya rezerve edilmiş. Başka bir tuş seçin."
@@ -221,6 +245,8 @@ return {
         always_run_select_key_hint = "Klik for at vælge en ny tast til altid løb",
         always_run_custom_key_enable = "Brugerdefineret skiftetast",
         always_run_custom_key_description = "Brug en ubenyttet tast for at undgå konflikter med eksisterende handlinger.",
+        always_run_protected_keys = "Beskyttede taster",
+        always_run_protected_keys_description = "Du kan slå beskyttelse af tildelte taster fra for at tildele skift til absolut enhver tast.",
         always_run_key_cancel_hint = "Tryk på ESC for at annullere tastetildelingen.",
         always_run_key_cancelled = "Tildeling af tast annulleret.",
         always_run_key_forbidden = "Denne tast er allerede i brug eller reserveret. Vælg en anden tast."
@@ -238,6 +264,8 @@ return {
         always_run_select_key_hint = "Klik om een nieuwe toets voor altijd rennen te kiezen",
         always_run_custom_key_enable = "Aangepaste schakeltoets",
         always_run_custom_key_description = "Gebruik een niet-toegewezen toets om conflicten met bestaande acties te voorkomen.",
+        always_run_protected_keys = "Beschermde toetsen",
+        always_run_protected_keys_description = "Je kunt de bescherming van toegewezen toetsen uitschakelen om de schakelaar aan werkelijk elke toets toe te wijzen.",
         always_run_key_cancel_hint = "Druk op ESC om het toewijzen van de toets te annuleren.",
         always_run_key_cancelled = "Toewijzing van toets geannuleerd.",
         always_run_key_forbidden = "Deze toets is al in gebruik of gereserveerd. Kies een andere toets."
@@ -255,6 +283,8 @@ return {
         always_run_select_key_hint = "Klikk for å velge en ny tast for alltid løping",
         always_run_custom_key_enable = "Egendefinert veksletast",
         always_run_custom_key_description = "Bruk en ubundet tast for å unngå konflikter med eksisterende handlinger.",
+        always_run_protected_keys = "Beskyttede taster",
+        always_run_protected_keys_description = "Du kan slå av beskyttelse av tildelte taster for å tilordne vekslingen til hvilken som helst tast.",
         always_run_key_cancel_hint = "Trykk ESC for å avbryte tastetildelingen.",
         always_run_key_cancelled = "Tildeling av tast avbrutt.",
         always_run_key_forbidden = "Denne tasten er allerede i bruk eller reservert. Velg en annen."
@@ -272,6 +302,8 @@ return {
         always_run_select_key_hint = "Napsauta valitaksesi uusi näppäin jatkuvalle juoksulle",
         always_run_custom_key_enable = "Mukautettu vaihtonäppäin",
         always_run_custom_key_description = "Käytä sitomatonta näppäintä välttääksesi ristiriidat olemassa olevien toimintojen kanssa.",
+        always_run_protected_keys = "Suojatut näppäimet",
+        always_run_protected_keys_description = "Voit poistaa sidottujen näppäinten suojauksen käytöstä, jotta voit asettaa vaihdon mille tahansa näppäimelle.",
         always_run_key_cancel_hint = "Paina ESC peruuttaaksesi näppäimen määrityksen.",
         always_run_key_cancelled = "Näppäimen määritys peruutettu.",
         always_run_key_forbidden = "Tämä näppäin on jo käytössä tai varattu. Valitse toinen näppäin."
@@ -289,6 +321,8 @@ return {
         always_run_select_key_hint = "Klicka för att välja en ny tangent för alltid spring",
         always_run_custom_key_enable = "Anpassad växlingstangent",
         always_run_custom_key_description = "Använd en obunden tangent för att undvika konflikter med befintliga handlingar.",
+        always_run_protected_keys = "Skyddade tangenter",
+        always_run_protected_keys_description = "Du kan stänga av skydd för tilldelade tangenter för att binda växlingen till vilken tangent som helst.",
         always_run_key_cancel_hint = "Tryck på ESC för att avbryta tangenttilldelningen.",
         always_run_key_cancelled = "Tangenttilldelning avbröts.",
         always_run_key_forbidden = "Denna tangent används redan eller är reserverad. Välj en annan tangent."
@@ -306,6 +340,8 @@ return {
         always_run_select_key_hint = "Kliknutím vyberte novou klávesu pro automatický běh",
         always_run_custom_key_enable = "Vlastní přepínací klávesa",
         always_run_custom_key_description = "Použijte nepřiřazenou klávesu, abyste předešli konfliktům se stávajícími akcemi.",
+        always_run_protected_keys = "Chráněné klávesy",
+        always_run_protected_keys_description = "Můžete vypnout ochranu přiřazených kláves a přiřadit přepínání opravdu jakékoli klávese.",
         always_run_key_cancel_hint = "Stisknutím ESC zrušíte přiřazení klávesy.",
         always_run_key_cancelled = "Přiřazení klávesy zrušeno.",
         always_run_key_forbidden = "Tato klávesa je již používána nebo rezervována. Vyberte jinou."
@@ -323,6 +359,8 @@ return {
         always_run_select_key_hint = "Kattints az automatikus futás új billentyűjének kiválasztásához",
         always_run_custom_key_enable = "Egyéni kapcsolóbillentyű",
         always_run_custom_key_description = "Használj nem hozzárendelt billentyűt, hogy elkerüld az ütközéseket a meglévő műveletekkel.",
+        always_run_protected_keys = "Védett billentyűk",
+        always_run_protected_keys_description = "Kikapcsolhatod a hozzárendelt billentyűk védelmét, hogy a kapcsolást bármelyik billentyűre tehesd.",
         always_run_key_cancel_hint = "Nyomd meg az ESC billentyűt a billentyűhozzárendelés megszakításához.",
         always_run_key_cancelled = "Billentyű hozzárendelése megszakítva.",
         always_run_key_forbidden = "Ez a billentyű már használatban van vagy fenntartott. Válassz másikat."
@@ -340,6 +378,8 @@ return {
         always_run_select_key_hint = "Clicca per selezionare un nuovo tasto per la corsa automatica",
         always_run_custom_key_enable = "Tasto di attivazione personalizzato",
         always_run_custom_key_description = "Usa un tasto non assegnato per evitare conflitti con le azioni esistenti.",
+        always_run_protected_keys = "Tasti protetti",
+        always_run_protected_keys_description = "Puoi disattivare la protezione dei tasti assegnati per associare il cambio a praticamente qualsiasi tasto.",
         always_run_key_cancel_hint = "Premi ESC per annullare l'assegnazione del tasto.",
         always_run_key_cancelled = "Assegnazione del tasto annullata.",
         always_run_key_forbidden = "Questo tasto è già in uso o riservato. Scegline un altro."
@@ -357,6 +397,8 @@ return {
         always_run_select_key_hint = "Натисніть, щоб вибрати нову клавішу для автобігу",
         always_run_custom_key_enable = "Користувацька клавіша перемикання",
         always_run_custom_key_description = "Використовуйте вільну клавішу без призначення, щоб уникнути конфліктів із наявними діями.",
+        always_run_protected_keys = "Захищені клавіші",
+        always_run_protected_keys_description = "Ви можете вимкнути захист призначених клавіш, щоб призначити перемикання на абсолютно будь-яку клавішу.",
         always_run_key_cancel_hint = "Натисніть ESC, щоб скасувати призначення клавіші.",
         always_run_key_cancelled = "Призначення клавіші скасовано.",
         always_run_key_forbidden = "Ця клавіша вже використовується або зарезервована. Виберіть іншу."
@@ -374,6 +416,8 @@ return {
         always_run_select_key_hint = "คลิกเพื่อเลือกปุ่มใหม่สำหรับการวิ่งอัตโนมัติ",
         always_run_custom_key_enable = "ปุ่มสลับแบบกำหนดเอง",
         always_run_custom_key_description = "ใช้ปุ่มที่ยังไม่ได้ผูกไว้เพื่อหลีกเลี่ยงความขัดแย้งกับการกระทำที่มีอยู่",
+        always_run_protected_keys = "ปุ่มที่ได้รับการป้องกัน",
+        always_run_protected_keys_description = "คุณสามารถปิดการป้องกันปุ่มที่ถูกผูกไว้ เพื่อกำหนดปุ่มสลับให้เป็นปุ่มใดก็ได้ตามต้องการ",
         always_run_key_cancel_hint = "กด ESC เพื่อยกเลิกการกำหนดปุ่ม",
         always_run_key_cancelled = "ยกเลิกการกำหนดปุ่มแล้ว",
         always_run_key_forbidden = "ปุ่มนี้ถูกใช้งานอยู่หรือถูกสงวนไว้แล้ว กรุณาเลือกปุ่มอื่น"

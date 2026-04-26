@@ -16,6 +16,7 @@ local alwaysRunToggled = true
 local lastToggleKeyState = false
 local alwaysRunMuteSound = true
 local alwaysRunCustomKeyEnabled = false
+local alwaysRunProtectedKeysEnabled = true
 local isCapturingKey = false
 local KEY_MIN, KEY_MAX = 1, 159
 local keyButton
@@ -58,7 +59,8 @@ local function SerializeAlwaysRunSettings(data)
         lines[#lines + 1] = "\t\t\t\"toggled\": " .. tostring(profile.toggled ~= false) .. ","
         lines[#lines + 1] = "\t\t\t\"toggle_key\": " .. tostring(tonumber(profile.toggle_key) or DEFAULT_TOGGLE_KEY) .. ","
         lines[#lines + 1] = "\t\t\t\"mute_sound\": " .. tostring(profile.mute_sound ~= false) .. ","
-        lines[#lines + 1] = "\t\t\t\"custom_key_enabled\": " .. tostring(profile.custom_key_enabled == true)
+        lines[#lines + 1] = "\t\t\t\"custom_key_enabled\": " .. tostring(profile.custom_key_enabled == true) .. ","
+        lines[#lines + 1] = "\t\t\t\"protected_keys_enabled\": " .. tostring(profile.protected_keys_enabled ~= false)
         lines[#lines + 1] = "\t\t}" .. (index < #profileNames and "," or "")
     end
 
@@ -83,7 +85,8 @@ local function BuildDefaultProfile()
         toggled = true,
         toggle_key = DEFAULT_TOGGLE_KEY,
         mute_sound = true,
-        custom_key_enabled = false
+        custom_key_enabled = false,
+        protected_keys_enabled = true
     }
 end
 
@@ -159,9 +162,14 @@ local function ShouldBypassAlwaysRun(player)
 end
 
 local function GetForbiddenKeys()
-    local forbidden = {
-        [MOUSE_MIDDLE] = true
-    }
+    local forbidden = {}
+    if not alwaysRunProtectedKeysEnabled then
+        return forbidden
+    end
+
+    forbidden[MOUSE_MIDDLE] = true
+    forbidden[KEY_RSHIFT] = true
+
     local binds = {
         "+forward", "+moveleft", "+back", "+moveright",
         "+lookup", "+lookdown", "+left", "+right",
@@ -277,7 +285,8 @@ function SaveAlwaysRunSettings()
         toggled = alwaysRunToggled,
         toggle_key = TOGGLE_KEY or DEFAULT_TOGGLE_KEY,
         mute_sound = alwaysRunMuteSound,
-        custom_key_enabled = alwaysRunCustomKeyEnabled
+        custom_key_enabled = alwaysRunCustomKeyEnabled,
+        protected_keys_enabled = alwaysRunProtectedKeysEnabled
     }
     file.Write(SAVE_FILE_PATH, SerializeAlwaysRunSettings(data))
 end
@@ -294,12 +303,14 @@ local function LoadAlwaysRunSettings()
             TOGGLE_KEY = tonumber(profile.toggle_key) or DEFAULT_TOGGLE_KEY
             alwaysRunMuteSound = profile.mute_sound ~= false
             alwaysRunCustomKeyEnabled = profile.custom_key_enabled == true
+            alwaysRunProtectedKeysEnabled = profile.protected_keys_enabled ~= false
         else
             local state, key, mute, custom = string.match(raw, "^(%d):(%d+):?(%d?):?(%d?)$")
             alwaysRunToggled = (state == "1")
             TOGGLE_KEY = tonumber(key) or DEFAULT_TOGGLE_KEY
             alwaysRunMuteSound = (mute == "1")
             alwaysRunCustomKeyEnabled = (custom == "1")
+            alwaysRunProtectedKeysEnabled = true
             SaveAlwaysRunSettings()
         end
     else
@@ -307,6 +318,7 @@ local function LoadAlwaysRunSettings()
         TOGGLE_KEY = defaultProfile.toggle_key
         alwaysRunMuteSound = defaultProfile.mute_sound
         alwaysRunCustomKeyEnabled = defaultProfile.custom_key_enabled
+        alwaysRunProtectedKeysEnabled = defaultProfile.protected_keys_enabled
         SaveAlwaysRunSettings()
     end
     SyncEnabledConVar()
@@ -358,6 +370,12 @@ local function RebuildPanel(panel)
     customKeyDescription:SetVisible(alwaysRunCustomKeyEnabled)
     local customKeyCancelHint = panel:Help(GetLocalizedPhrase("always_run_key_cancel_hint"))
     customKeyCancelHint:SetVisible(alwaysRunCustomKeyEnabled)
+    local protectedKeysCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_protected_keys"))
+    protectedKeysCheckbox:SetValue(alwaysRunProtectedKeysEnabled)
+    protectedKeysCheckbox:SetVisible(alwaysRunCustomKeyEnabled)
+    protectedKeysCheckbox:DockMargin(16, 0, 0, 0)
+    local protectedKeysDescription = panel:Help(GetLocalizedPhrase("always_run_protected_keys_description"))
+    protectedKeysDescription:SetVisible(alwaysRunCustomKeyEnabled)
 
     if keyButton then keyButton:Remove() end
     keyButton = vgui.Create("DButton")
@@ -386,6 +404,11 @@ local function RebuildPanel(panel)
         alwaysRunCustomKeyEnabled = value
         SaveAlwaysRunSettings()
         RebuildPanel(panel)
+    end
+
+    protectedKeysCheckbox.OnChange = function(_, value)
+        alwaysRunProtectedKeysEnabled = value
+        SaveAlwaysRunSettings()
     end
 
     local muteCheckbox = panel:CheckBox(GetLocalizedPhrase("always_run_mute_sound"))
