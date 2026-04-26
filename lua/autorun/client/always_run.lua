@@ -162,13 +162,14 @@ local function ShouldBypassAlwaysRun(player)
 end
 
 local function GetForbiddenKeys()
-    local forbidden = {}
     if not alwaysRunProtectedKeysEnabled then
-        return forbidden
+        return {}
     end
 
-    forbidden[MOUSE_MIDDLE] = true
-    forbidden[KEY_RSHIFT] = true
+    local forbidden = {
+        [MOUSE_MIDDLE] = true,
+        [KEY_RSHIFT] = true
+    }
 
     local binds = {
         "+forward", "+moveleft", "+back", "+moveright",
