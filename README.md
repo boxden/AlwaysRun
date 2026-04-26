@@ -6,6 +6,7 @@ The **Always Run** addon for Garry's Mod lets players keep running by default on
 - **Always Run Toggle**: Automatically holds run unless the player is holding their current `+speed` or `+walk` bind.
 - **Settings Menu Integration**: Available in `Utilities -> User`.
 - **Custom Toggle Key**: Supports an optional custom key for enabling or disabling auto-run.
+- **Console Commands**: Supports direct console control for toggling and assigning the custom key.
 - **Localized UI**: Includes translations for 20+ languages.
 - **Persistent Profiles**: Saves per-gamemode preferences to a client data file.
 
@@ -27,6 +28,12 @@ The **Always Run** addon for Garry's Mod lets players keep running by default on
 - **Your `+walk` bind**: Also temporarily stops auto-run while held.
 - **Custom toggle key**: Optional key for turning auto-run on or off.
 - **ESC during key capture**: Cancels custom key assignment.
+
+## Console Commands
+- `web_always_run_toggle`: Toggles auto-run directly.
+- `web_always_run_set_toggle_key <key>`: Assigns the custom toggle key by key name or key code and enables custom key mode.
+- Example: `web_always_run_set_toggle_key SHIFT`
+- Example: `web_always_run_set_toggle_key 79`
 
 ## Localization
 
@@ -61,6 +68,7 @@ The addon is fully client-side and relies on Garry's Mod hooks:
    - In the `Think` hook, it listens for key press transitions (up -> down) for the configured toggle key.
    - When pressed, it toggles the state, writes settings to disk, and optionally plays UI sounds.
    - During key capture, pressing `ESC` cancels the assignment.
+   - The addon also exposes console commands for toggling and assigning the custom key without the menu.
 
 4. **Spawnmenu UI**
    - In `PopulateToolMenu`, it adds a panel under `Utilities -> User`.

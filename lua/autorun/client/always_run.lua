@@ -1,5 +1,7 @@
 local ENABLED_CONVAR_NAME = "web_always_run_cl_enabled"
 local SET_KEY_COMMAND = "web_always_run_set_key"
+local SET_KEY_CLI_COMMAND = "web_always_run_set_toggle_key"
+local TOGGLE_COMMAND = "web_always_run_toggle"
 local SAVE_FILE_PATH = "web_always_run_settings.txt"
 local TOOL_TAB_NAME = "Utilities"
 local TOOL_CATEGORY_NAME = "User"
@@ -21,6 +23,7 @@ local mainCheckbox
 local descriptionHelpLabel
 local keyboardIcon = Material("icon16/keyboard.png")
 local githubIcon = Material("icon32/github.png")
+local SaveAlwaysRunSettings
 
 local function SyncEnabledConVar()
     RunConsoleCommand(ENABLED_CONVAR_NAME, alwaysRunToggled and "1" or "0")
@@ -88,6 +91,32 @@ local function GetKeyDisplayName(keyCode)
     return input.GetKeyName(keyCode) or ("KEY_" .. tostring(keyCode or DEFAULT_TOGGLE_KEY))
 end
 
+local function ResolveKeyCode(value)
+    if not value or value == "" then
+        return nil
+    end
+
+    local numericKeyCode = tonumber(value)
+    if numericKeyCode and numericKeyCode >= KEY_MIN and numericKeyCode <= KEY_MAX then
+        return numericKeyCode
+    end
+
+    local directKeyCode = input.GetKeyCode(string.upper(tostring(value)))
+    if directKeyCode and directKeyCode >= KEY_MIN and directKeyCode <= KEY_MAX then
+        return directKeyCode
+    end
+
+    local loweredValue = string.lower(tostring(value))
+    for keyCode = KEY_MIN, KEY_MAX do
+        local keyName = input.GetKeyName(keyCode)
+        if keyName and string.lower(keyName) == loweredValue then
+            return keyCode
+        end
+    end
+
+    return nil
+end
+
 local function PlayToggleSound(isEnabled)
     if alwaysRunMuteSound then return end
     local toggleSound = isEnabled and "garrysmod/ui_click.wav" or "garrysmod/ui_return.wav"
@@ -131,37 +160,28 @@ end
 
 local function GetForbiddenKeys()
     local forbidden = {
-        [KEY_ESCAPE] = true, [KEY_F1] = true, [KEY_F2] = true, [KEY_F3] = true, [KEY_F4] = true,
-        [KEY_F5] = true, [KEY_F6] = true, [KEY_F7] = true, [KEY_F8] = true, [KEY_F9] = true,
-        [KEY_F10] = true, [KEY_F11] = true, [KEY_F12] = true,
-        [MOUSE_LEFT] = true, [MOUSE_RIGHT] = true, [MOUSE_MIDDLE] = true
+        [MOUSE_MIDDLE] = true
     }
     local binds = {
         "+forward", "+moveleft", "+back", "+moveright",
+        "+lookup", "+lookdown", "+left", "+right",
+        "+jump", "+duck",
+        "+speed", "+walk",
+        "noclip", "gmod_undo",
         "+menu_context", "+menu",
-        "noclip",
-        "gmod_undo",
-        "+jump",
-        "+duck",
-        "+attack",
-        "+attack2",
-        "+speed",
-        "+walk",
-        "+reload",
-        "+use",
-        "impulse 100",
-        "impulse 201",
-        "+zoom",
-        "messagemode",
-        "messagemode2",
-        "+voicerecord",
-        "+showscores",
-        "toggleconsole",
-        "pause"
+        "+attack", "+attack2",
+        "lastinv", "invprev", "invnext",
+        "+reload", "+use", "+zoom",
+        "impulse 100", "impulse 201",
+        "messagemode", "messagemode2",
+        "+voicerecord", "+showscores",
+        "toggleconsole", "pause", "cancelselect",
+        "gm_showhelp", "gm_showteam",
+        "gm_showspare1", "gm_showspare2",
+        "jpeg", "save quick", "load quick",
+        "slot0", "slot1", "slot2", "slot3", "slot4",
+        "slot5", "slot6", "slot7", "slot8", "slot9"
     }
-    for i = 0, 9 do
-        table.insert(binds, "slot" .. i)
-    end
     for _, bind in ipairs(binds) do
         local key = input.LookupBinding(bind, true)
         if key then
@@ -172,6 +192,19 @@ local function GetForbiddenKeys()
         end
     end
     return forbidden
+end
+
+local function ApplyToggleState(newState, shouldPlaySound)
+    alwaysRunToggled = newState
+    SyncEnabledConVar()
+    SaveAlwaysRunSettings()
+    if shouldPlaySound then
+        PlayToggleSound(alwaysRunToggled)
+    end
+end
+
+local function ToggleAlwaysRun(shouldPlaySound)
+    ApplyToggleState(not alwaysRunToggled, shouldPlaySound)
 end
 
 local function GetLocalizedPhrase(key)
@@ -235,7 +268,7 @@ local function CloseSpawnMenuForKeyCapture()
     gui.EnableScreenClicker(false)
 end
 
-local function SaveAlwaysRunSettings()
+function SaveAlwaysRunSettings()
     local profileKey = GetCurrentProfileKey()
     local data = util.JSONToTable(file.Read(SAVE_FILE_PATH, "DATA") or "") or {}
     data.version = SETTINGS_VERSION
@@ -285,10 +318,7 @@ hook.Add("Think", "web_AlwaysRunToggleKey", function()
     if not alwaysRunCustomKeyEnabled then lastToggleKeyState = false return end
     local keyDown = input.IsKeyDown(TOGGLE_KEY)
     if keyDown and not lastToggleKeyState then
-        alwaysRunToggled = not alwaysRunToggled
-        SyncEnabledConVar()
-        SaveAlwaysRunSettings()
-        PlayToggleSound(alwaysRunToggled)
+        ToggleAlwaysRun(true)
     end
     lastToggleKeyState = keyDown
 end)
@@ -313,9 +343,7 @@ local function RebuildPanel(panel)
     local checkbox = panel:CheckBox(GetLocalizedPhrase("always_run_enabled"))
     checkbox:SetValue(alwaysRunToggled)
     checkbox.OnChange = function(_, value)
-        alwaysRunToggled = value
-        SyncEnabledConVar()
-        SaveAlwaysRunSettings()
+        ApplyToggleState(value, false)
     end
     mainCheckbox = checkbox
 
@@ -437,6 +465,7 @@ local function FinishKeyCapture(newKey)
     end
 
     TOGGLE_KEY = newKey
+    alwaysRunCustomKeyEnabled = true
     SaveAlwaysRunSettings()
     chat.AddText(Color(0,255,0), GetLocalizedPhrase("always_run_key_selected") .. GetKeyDisplayName(newKey))
     if keyButton and keyButton:IsValid() and keyButton.SetText then
@@ -466,6 +495,31 @@ concommand.Add(SET_KEY_COMMAND, function()
             end
         end)
     end)
+end)
+
+concommand.Add(SET_KEY_CLI_COMMAND, function(_, _, arguments)
+    local requestedKey = arguments and arguments[1] or nil
+    local resolvedKeyCode = ResolveKeyCode(requestedKey)
+
+    if not resolvedKeyCode then
+        chat.AddText(Color(255,100,100), "Always Run: invalid key. Use a key name or key code.")
+        return
+    end
+
+    TOGGLE_KEY = resolvedKeyCode
+    alwaysRunCustomKeyEnabled = true
+    SaveAlwaysRunSettings()
+    lastToggleKeyState = input.IsKeyDown(TOGGLE_KEY)
+
+    if keyButton and keyButton:IsValid() and keyButton.SetText then
+        keyButton:SetText(GetLocalizedPhrase("always_run_key") .. GetKeyDisplayName(TOGGLE_KEY))
+    end
+
+    chat.AddText(Color(0,255,0), "Always Run: toggle key set to " .. GetKeyDisplayName(TOGGLE_KEY))
+end)
+
+concommand.Add(TOGGLE_COMMAND, function()
+    ToggleAlwaysRun(true)
 end)
 
 cvars.AddChangeCallback(ENABLED_CONVAR_NAME, function(_, _, newValue)
